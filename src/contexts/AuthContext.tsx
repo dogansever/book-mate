@@ -5,6 +5,7 @@ import {
   LoginCredentials,
   RegisterCredentials,
   SocialAuthProvider,
+  UserProfile,
 } from "../types/user";
 
 interface AuthContextType {
@@ -12,6 +13,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   socialLogin: (provider: SocialAuthProvider) => Promise<void>;
+  updateProfile: (profile: UserProfile) => Promise<void>;
   logout: () => void;
 }
 
@@ -23,6 +25,7 @@ type AuthAction =
   | { type: "LOGIN_START" }
   | { type: "LOGIN_SUCCESS"; payload: User }
   | { type: "LOGIN_ERROR"; payload: string }
+  | { type: "UPDATE_PROFILE_SUCCESS"; payload: UserProfile }
   | { type: "LOGOUT" }
   | { type: "CLEAR_ERROR" };
 
@@ -34,6 +37,11 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, isLoading: false, user: action.payload, error: null };
     case "LOGIN_ERROR":
       return { ...state, isLoading: false, error: action.payload };
+    case "UPDATE_PROFILE_SUCCESS":
+      return {
+        ...state,
+        user: state.user ? { ...state.user, profile: action.payload } : null,
+      };
     case "LOGOUT":
       return { ...state, user: null, isLoading: false, error: null };
     case "CLEAR_ERROR":
@@ -132,13 +140,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  const updateProfile = async (profile: UserProfile) => {
+    try {
+      // Simulated API call - replace with actual profile update
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      dispatch({ type: "UPDATE_PROFILE_SUCCESS", payload: profile });
+    } catch {
+      dispatch({
+        type: "LOGIN_ERROR",
+        payload: "Profil güncellenirken bir hata oluştu.",
+      });
+    }
+  };
+
   const logout = () => {
     dispatch({ type: "LOGOUT" });
   };
 
   return (
     <AuthContext.Provider
-      value={{ state, login, register, socialLogin, logout }}
+      value={{ state, login, register, socialLogin, updateProfile, logout }}
     >
       {children}
     </AuthContext.Provider>

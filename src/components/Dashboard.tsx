@@ -1,12 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import ProfileSetup from "./ProfileSetup";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
   const { state, logout } = useAuth();
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
 
   if (!state.user) {
     return null;
+  }
+
+  // Profil kurulumu gerekiyor mu kontrol et
+  const needsProfileSetup =
+    !state.user.profile?.isProfileComplete || showProfileSetup;
+
+  if (needsProfileSetup) {
+    return (
+      <ProfileSetup
+        onComplete={() => setShowProfileSetup(false)}
+        onSkip={() => setShowProfileSetup(false)}
+      />
+    );
   }
 
   return (
@@ -33,9 +48,17 @@ const Dashboard: React.FC = () => {
               <span className="user-name">{state.user.displayName}</span>
               <span className="user-email">{state.user.email}</span>
             </div>
-            <button onClick={logout} className="logout-button">
-              Çıkış Yap
-            </button>
+            <div className="header-actions">
+              <button
+                onClick={() => setShowProfileSetup(true)}
+                className="profile-edit-button"
+              >
+                Profili Düzenle
+              </button>
+              <button onClick={logout} className="logout-button">
+                Çıkış Yap
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -54,6 +77,77 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
           </div>
+
+          {/* Kullanıcı Profil Bilgileri */}
+          {state.user.profile && (
+            <div className="user-profile-info">
+              <div className="profile-section">
+                <h4>👤 Profil Bilgileri</h4>
+                <div className="profile-details">
+                  {state.user.profile.city && (
+                    <span className="profile-item">
+                      📍 {state.user.profile.city}
+                    </span>
+                  )}
+                  {state.user.profile.ageRange && (
+                    <span className="profile-item">
+                      🎂 {state.user.profile.ageRange} yaş
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {state.user.profile.favoriteGenres.length > 0 && (
+                <div className="profile-section">
+                  <h4>📚 Favori Türler</h4>
+                  <div className="profile-tags">
+                    {state.user.profile.favoriteGenres
+                      .slice(0, 5)
+                      .map((genre) => (
+                        <span key={genre} className="profile-tag">
+                          {genre}
+                        </span>
+                      ))}
+                    {state.user.profile.favoriteGenres.length > 5 && (
+                      <span className="profile-tag more">
+                        +{state.user.profile.favoriteGenres.length - 5} daha
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {state.user.profile.favoriteAuthors.length > 0 && (
+                <div className="profile-section">
+                  <h4>✍️ Favori Yazarlar</h4>
+                  <div className="profile-authors">
+                    {state.user.profile.favoriteAuthors
+                      .slice(0, 3)
+                      .map((author) => (
+                        <span key={author} className="author-name">
+                          {author}
+                        </span>
+                      ))}
+                    {state.user.profile.favoriteAuthors.length > 3 && (
+                      <span className="author-name more">
+                        ve {state.user.profile.favoriteAuthors.length - 3} yazar
+                        daha
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {state.user.profile.intellectualBio && (
+                <div className="profile-section">
+                  <h4>💭 Entelektüel Biyografi</h4>
+                  <p className="bio-text">
+                    {state.user.profile.intellectualBio}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="quick-stats">
             <div className="stat-card">

@@ -4,8 +4,19 @@ export interface User {
   displayName: string;
   avatar?: string;
   provider: "email" | "google" | "instagram";
+  profile?: UserProfile;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface UserProfile {
+  city?: string;
+  ageRange?: string;
+  favoriteGenres: string[];
+  favoriteAuthors: string[];
+  interests: string[];
+  intellectualBio?: string;
+  isProfileComplete: boolean;
 }
 
 export interface AuthState {
