@@ -17,6 +17,7 @@ export interface UserProfile {
   interests: string[];
   intellectualBio?: string;
   socialConnections?: SocialConnection[];
+  followStats?: UserFollowStats;
   isProfileComplete: boolean;
 }
 
@@ -47,4 +48,36 @@ export interface RegisterCredentials {
 
 export interface SocialAuthProvider {
   provider: "google" | "instagram";
+}
+
+export interface FollowRelationship {
+  id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: Date;
+  isActive: boolean;
+}
+
+export interface UserFollowStats {
+  followersCount: number;
+  followingCount: number;
+  mutualFollowsCount: number;
+}
+
+export interface FollowRequest {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserConnectionInfo {
+  user: User;
+  relationshipType: "following" | "follower" | "mutual" | "none";
+  followedAt?: Date;
+  commonInterests: string[];
+  commonGenres: string[];
+  compatibilityScore: number;
 }

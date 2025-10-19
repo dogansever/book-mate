@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { SocialConnection } from "../types/user";
-import { useAuth } from "../hooks/useAuth";
 import "./SocialConnections.css";
 
 interface SocialConnectionsProps {
@@ -12,7 +11,6 @@ const SocialConnections: React.FC<SocialConnectionsProps> = ({
   connections,
   onUpdate,
 }) => {
-  const { state } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<
     "instagram" | "linkedin"
