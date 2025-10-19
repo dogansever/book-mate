@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { UserProfile } from "../types/user";
+import { UserProfile, SocialConnection } from "../types/user";
 import { useAuth } from "../hooks/useAuth";
+import SocialConnections from "./SocialConnections";
 import "./ProfileSetup.css";
 
 interface ProfileSetupProps {
@@ -17,6 +18,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete, onSkip }) => {
     favoriteAuthors: [],
     interests: [],
     intellectualBio: "",
+    socialConnections: [],
     isProfileComplete: false,
   });
 
@@ -144,6 +146,13 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete, onSkip }) => {
     setFormData((prev) => ({
       ...prev,
       interests: prev.interests.filter((i) => i !== interest),
+    }));
+  };
+
+  const handleSocialConnectionsUpdate = (connections: SocialConnection[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      socialConnections: connections,
     }));
   };
 
@@ -316,6 +325,18 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onComplete, onSkip }) => {
                   </div>
                 ))}
             </div>
+          </div>
+
+          {/* Sosyal Hesap Bağlantıları */}
+          <div className="form-section">
+            <h3>🔗 Sosyal Hesap Doğrulama</h3>
+            <p className="section-desc">
+              Güvenilirliğini artırmak için sosyal hesaplarını bağlayabilirsin.
+            </p>
+            <SocialConnections
+              connections={formData.socialConnections || []}
+              onUpdate={handleSocialConnectionsUpdate}
+            />
           </div>
 
           {/* Entelektüel Biyografi */}

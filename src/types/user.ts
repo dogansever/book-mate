@@ -16,7 +16,16 @@ export interface UserProfile {
   favoriteAuthors: string[];
   interests: string[];
   intellectualBio?: string;
+  socialConnections?: SocialConnection[];
   isProfileComplete: boolean;
+}
+
+export interface SocialConnection {
+  platform: "instagram" | "linkedin";
+  username: string;
+  profileUrl: string;
+  isVerified: boolean;
+  connectedAt: Date;
 }
 
 export interface AuthState {
