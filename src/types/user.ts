@@ -80,4 +80,31 @@ export interface UserConnectionInfo {
   commonInterests: string[];
   commonGenres: string[];
   compatibilityScore: number;
+  culturalMatch?: CulturalMatchInfo;
+}
+
+export interface CulturalMatchInfo {
+  overallScore: number;
+  genreMatchScore: number;
+  interestMatchScore: number;
+  authorMatchScore: number;
+  intellectualCompatibility: number;
+  readingPatternSimilarity: number;
+  matchReasons: string[];
+  recommendationLevel: "high" | "medium" | "low";
+}
+
+export interface InterestAnalysis {
+  category: string;
+  interests: string[];
+  weight: number;
+  userHas: boolean;
+  similarity: number;
+}
+
+export interface UserRecommendation {
+  user: UserConnectionInfo;
+  matchReasons: string[];
+  culturalAnalysis: CulturalMatchInfo;
+  suggestedActions: string[];
 }

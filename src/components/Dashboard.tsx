@@ -281,7 +281,7 @@ const Dashboard: React.FC = () => {
         </main>
       ) : (
         <main className="dashboard-main">
-          <FollowSystem />
+          <FollowSystem view="discover" />
         </main>
       )}
     </div>

@@ -8,7 +8,7 @@ interface FollowSystemProps {
   view?: "followers" | "following" | "discover" | "stats";
 }
 
-const FollowSystem: React.FC<FollowSystemProps> = ({ view = "stats" }) => {
+const FollowSystem: React.FC<FollowSystemProps> = ({ view = "discover" }) => {
   const { state } = useAuth();
   const {
     followersCount,
@@ -22,14 +22,26 @@ const FollowSystem: React.FC<FollowSystemProps> = ({ view = "stats" }) => {
     unfollowUser,
     isFollowLoading,
     searchUsers,
+    getCulturalMatches,
+    findSimilarReaders,
+    getPersonalizedRecommendations,
   } = useFollow(state.user?.id);
 
   const [activeTab, setActiveTab] = useState<
-    "followers" | "following" | "discover"
+    "followers" | "following" | "discover" | "cultural"
   >("discover");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UserConnectionInfo[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [culturalMatches, setCulturalMatches] = useState<UserConnectionInfo[]>(
+    []
+  );
+  const [selectedGenreFilter, setSelectedGenreFilter] = useState<string>("");
+  const [selectedInterestFilter, setSelectedInterestFilter] =
+    useState<string>("");
+  const [minCompatibilityScore, setMinCompatibilityScore] =
+    useState<number>(60);
+  const [isLoadingCultural, setIsLoadingCultural] = useState(false);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
@@ -60,6 +72,55 @@ const FollowSystem: React.FC<FollowSystemProps> = ({ view = "stats" }) => {
     if (score >= 80) return "#22c55e";
     if (score >= 60) return "#f59e0b";
     return "#64748b";
+  };
+
+  const handleCulturalSearch = async () => {
+    setIsLoadingCultural(true);
+    try {
+      const preferences = {
+        minScore: minCompatibilityScore / 100,
+        preferredGenres: selectedGenreFilter
+          ? [selectedGenreFilter]
+          : undefined,
+        preferredInterests: selectedInterestFilter
+          ? [selectedInterestFilter]
+          : undefined,
+      };
+
+      const matches = await getCulturalMatches(preferences);
+      setCulturalMatches(matches);
+    } catch (error) {
+      console.error("Kültürel eşleşme hatası:", error);
+    } finally {
+      setIsLoadingCultural(false);
+    }
+  };
+
+  const handleGenreBasedSearch = async (genre: string) => {
+    setIsLoadingCultural(true);
+    try {
+      const similarReaders = await findSimilarReaders(genre);
+      setCulturalMatches(similarReaders);
+      setActiveTab("cultural");
+    } catch (error) {
+      console.error("Tür bazlı arama hatası:", error);
+    } finally {
+      setIsLoadingCultural(false);
+    }
+  };
+
+  const loadPersonalizedRecommendations = async () => {
+    console.log("loadPersonalizedRecommendations başladı");
+    setIsLoadingCultural(true);
+    try {
+      const recommendations = await getPersonalizedRecommendations();
+      console.log("Öneriler geldi:", recommendations);
+      setCulturalMatches(recommendations);
+    } catch (error) {
+      console.error("Kişiselleştirilmiş öneri hatası:", error);
+    } finally {
+      setIsLoadingCultural(false);
+    }
   };
 
   const UserCard: React.FC<{
@@ -277,6 +338,154 @@ const FollowSystem: React.FC<FollowSystemProps> = ({ view = "stats" }) => {
     </div>
   );
 
+  const CulturalMatchView = () => {
+    console.log("CulturalMatchView render edildi");
+    console.log("isLoadingCultural:", isLoadingCultural);
+    console.log("culturalMatches:", culturalMatches);
+    console.log("suggestedUsers:", suggestedUsers); // Mock data'dan gelen
+
+    // Eğer culturalMatches boşsa ve loading değilse, suggestedUsers'ı kullan
+    const displayUsers =
+      culturalMatches.length > 0 ? culturalMatches : suggestedUsers;
+
+    return (
+      <div className="cultural-match-view">
+        <div className="cultural-filters">
+          <h3>🎯 Kültürel Uyum Filtreleri</h3>
+
+          <div className="filter-row">
+            <div className="filter-group">
+              <label htmlFor="genre-filter">Kitap Türü:</label>
+              <select
+                id="genre-filter"
+                value={selectedGenreFilter}
+                onChange={(e) => setSelectedGenreFilter(e.target.value)}
+              >
+                <option value="">Tüm Türler</option>
+                <option value="Roman">Roman</option>
+                <option value="Felsefi">Felsefi</option>
+                <option value="Bilim Kurgu">Bilim Kurgu</option>
+                <option value="Psikoloji">Psikoloji</option>
+                <option value="Şiir">Şiir</option>
+                <option value="Tarih">Tarih</option>
+                <option value="Polisiye">Polisiye</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label htmlFor="interest-filter">İlgi Alanı:</label>
+              <select
+                id="interest-filter"
+                value={selectedInterestFilter}
+                onChange={(e) => setSelectedInterestFilter(e.target.value)}
+              >
+                <option value="">Tüm İlgiler</option>
+                <option value="Yazma">Yazma</option>
+                <option value="Felsefe">Felsefe</option>
+                <option value="Sanat">Sanat</option>
+                <option value="Müzik">Müzik</option>
+                <option value="Sinema">Sinema</option>
+                <option value="Teknoloji">Teknoloji</option>
+                <option value="Seyahat">Seyahat</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label htmlFor="compatibility-range">
+                Min. Uyumluluk: %{minCompatibilityScore}
+              </label>
+              <input
+                type="range"
+                id="compatibility-range"
+                min="40"
+                max="95"
+                step="5"
+                value={minCompatibilityScore}
+                onChange={(e) =>
+                  setMinCompatibilityScore(parseInt(e.target.value))
+                }
+              />
+            </div>
+
+            <button
+              onClick={handleCulturalSearch}
+              disabled={isLoadingCultural}
+              className="search-cultural-btn"
+            >
+              {isLoadingCultural ? "🔍 Aranıyor..." : "🎯 Uyumlu Bul"}
+            </button>
+          </div>
+
+          <div className="quick-genre-filters">
+            <span className="filter-label">Hızlı Tür Filtreleri:</span>
+            {["Roman", "Felsefi", "Bilim Kurgu", "Şiir"].map((genre) => (
+              <button
+                key={genre}
+                onClick={() => handleGenreBasedSearch(genre)}
+                className="quick-filter-btn"
+                disabled={isLoadingCultural}
+              >
+                📚 {genre} Severler
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="cultural-results">
+          {isLoadingCultural ? (
+            <div className="loading-cultural">
+              <p>🧠 Kültürel uyumluluk analiz ediliyor...</p>
+            </div>
+          ) : displayUsers.length > 0 ? (
+            <>
+              <h3>
+                🌟
+                {culturalMatches.length > 0
+                  ? "Kültürel Uyum Sonuçları"
+                  : "Önerilen Kitapseverler"}
+                ({displayUsers.length})
+              </h3>
+              <p className="cultural-desc">
+                {culturalMatches.length > 0
+                  ? "İlgi alanlarınız ve okuma zevkinize göre en uyumlu kitapseverler:"
+                  : "Size uygun olabilecek kitapseverler:"}
+              </p>
+              <div className="users-list">
+                {displayUsers.map((userInfo) => (
+                  <div key={userInfo.user.id} className="cultural-user-card">
+                    <UserCard
+                      userInfo={userInfo}
+                      showFollowButton={userInfo.user.id !== state.user?.id}
+                    />
+                    {userInfo.compatibilityScore >= 80 && (
+                      <div className="high-match-badge">
+                        ⭐ Yüksek Uyumluluk!
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="no-cultural-results">
+              <p>
+                🎯 Kültürel uyum filtrelerini kullanarak size uygun
+                kitapseverleri bulun!
+              </p>
+              <button
+                onClick={loadPersonalizedRecommendations}
+                className="load-recommendations-btn"
+                disabled={isLoadingCultural}
+              >
+                💡 Benim İçin Öneriler Getir
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   if (view === "stats") {
     return (
       <div className="follow-system">
@@ -308,6 +517,18 @@ const FollowSystem: React.FC<FollowSystemProps> = ({ view = "stats" }) => {
           🔍 Keşfet
         </button>
         <button
+          className={`tab ${activeTab === "cultural" ? "active" : ""}`}
+          onClick={() => {
+            setActiveTab("cultural");
+            // Eğer daha önce yüklenmemişse otomatik yükle
+            if (culturalMatches.length === 0 && !isLoadingCultural) {
+              loadPersonalizedRecommendations();
+            }
+          }}
+        >
+          🎯 Kültürel Uyum
+        </button>
+        <button
           className={`tab ${activeTab === "followers" ? "active" : ""}`}
           onClick={() => setActiveTab("followers")}
         >
@@ -323,6 +544,7 @@ const FollowSystem: React.FC<FollowSystemProps> = ({ view = "stats" }) => {
 
       <div className="follow-content">
         {activeTab === "discover" && <DiscoverView />}
+        {activeTab === "cultural" && <CulturalMatchView />}
         {activeTab === "followers" && <FollowersView />}
         {activeTab === "following" && <FollowingView />}
       </div>

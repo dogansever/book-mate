@@ -35,6 +35,13 @@ interface UseFollowResult {
   refreshFollowData: () => Promise<void>;
   searchUsers: (query: string) => Promise<UserConnectionInfo[]>;
   getRecommendedUsers: () => Promise<UserConnectionInfo[]>;
+  getCulturalMatches: (preferences?: {
+    minScore?: number;
+    preferredGenres?: string[];
+    preferredInterests?: string[];
+  }) => Promise<UserConnectionInfo[]>;
+  findSimilarReaders: (genre?: string) => Promise<UserConnectionInfo[]>;
+  getPersonalizedRecommendations: () => Promise<UserConnectionInfo[]>;
 }
 
 export const useFollow = (currentUserId?: string): UseFollowResult => {
@@ -268,6 +275,79 @@ export const useFollow = (currentUserId?: string): UseFollowResult => {
       .slice(0, 5);
   };
 
+  const getCulturalMatches = async (preferences?: {
+    minScore?: number;
+    preferredGenres?: string[];
+    preferredInterests?: string[];
+  }): Promise<UserConnectionInfo[]> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    const minScore = preferences?.minScore || 0.6;
+    let filteredUsers = mockFollowData.suggestedUsers.filter(
+      (userInfo) => userInfo.compatibilityScore >= minScore
+    );
+
+    // Tür filtresi
+    if (preferences?.preferredGenres?.length) {
+      filteredUsers = filteredUsers.filter((userInfo) =>
+        preferences.preferredGenres!.some((genre) =>
+          userInfo.user.profile?.favoriteGenres.includes(genre)
+        )
+      );
+    }
+
+    // İlgi alanı filtresi
+    if (preferences?.preferredInterests?.length) {
+      filteredUsers = filteredUsers.filter((userInfo) =>
+        preferences.preferredInterests!.some((interest) =>
+          userInfo.user.profile?.interests.includes(interest)
+        )
+      );
+    }
+
+    return filteredUsers.sort(
+      (a, b) => b.compatibilityScore - a.compatibilityScore
+    );
+  };
+
+  const findSimilarReaders = async (
+    genre?: string
+  ): Promise<UserConnectionInfo[]> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    if (!genre) {
+      return mockFollowData.suggestedUsers.slice(0, 3);
+    }
+
+    return mockFollowData.suggestedUsers
+      .filter((userInfo) =>
+        userInfo.user.profile?.favoriteGenres.includes(genre)
+      )
+      .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
+      .slice(0, 4);
+  };
+
+  const getPersonalizedRecommendations = async (): Promise<
+    UserConnectionInfo[]
+  > => {
+    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    // Yüksek uyumlu kullanıcıları önceliklendir
+    const highCompatible = mockFollowData.suggestedUsers.filter(
+      (userInfo) => userInfo.compatibilityScore >= 80
+    );
+
+    const mediumCompatible = mockFollowData.suggestedUsers.filter(
+      (userInfo) =>
+        userInfo.compatibilityScore >= 60 && userInfo.compatibilityScore < 80
+    );
+
+    // Önce yüksek uyumlu, sonra orta uyumlu
+    return [...highCompatible, ...mediumCompatible.slice(0, 2)].sort(
+      (a, b) => b.compatibilityScore - a.compatibilityScore
+    );
+  };
+
   return {
     // Takip durumu
     isFollowing,
@@ -297,5 +377,8 @@ export const useFollow = (currentUserId?: string): UseFollowResult => {
     refreshFollowData,
     searchUsers,
     getRecommendedUsers,
+    getCulturalMatches,
+    findSimilarReaders,
+    getPersonalizedRecommendations,
   };
 };
