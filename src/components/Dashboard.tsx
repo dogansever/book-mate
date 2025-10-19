@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useFollow } from "../hooks/useFollow";
+import { useUserBooks } from "../hooks/useUserBooks";
 import ProfileSetup from "./ProfileSetup";
 import FollowSystem from "./FollowSystem";
+import AddBook from "./AddBook";
+import BookLibrary from "./BookLibrary";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
   const { state, logout } = useAuth();
   const { followersCount, followingCount } = useFollow(state.user?.id);
+  const { getReadingStats } = useUserBooks(state.user?.id);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [activeView, setActiveView] = useState<"dashboard" | "follow">(
+  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library">(
     "dashboard"
   );
 
@@ -56,16 +60,28 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="header-actions">
               <button
-                onClick={() =>
-                  setActiveView(
-                    activeView === "dashboard" ? "follow" : "dashboard"
-                  )
-                }
-                className="view-toggle-button"
+                onClick={() => setActiveView("dashboard")}
+                className={`nav-button ${activeView === "dashboard" ? "active" : ""}`}
               >
-                {activeView === "dashboard"
-                  ? "👥 Kitapsever Ağı"
-                  : "🏠 Ana Sayfa"}
+                🏠 Ana Sayfa
+              </button>
+              <button
+                onClick={() => setActiveView("library")}
+                className={`nav-button ${activeView === "library" ? "active" : ""}`}
+              >
+                📚 Kütüphanem
+              </button>
+              <button
+                onClick={() => setActiveView("add-book")}
+                className={`nav-button ${activeView === "add-book" ? "active" : ""}`}
+              >
+                ➕ Kitap Ekle
+              </button>
+              <button
+                onClick={() => setActiveView("follow")}
+                className={`nav-button ${activeView === "follow" ? "active" : ""}`}
+              >
+                👥 Kitapsever Ağı
               </button>
               <button
                 onClick={() => setShowProfileSetup(true)}
@@ -169,11 +185,18 @@ const Dashboard: React.FC = () => {
             )}
 
             <div className="quick-stats">
-              <div className="stat-card">
+              <div className="stat-card" onClick={() => setActiveView("library")}>
                 <div className="stat-icon">📖</div>
                 <div className="stat-info">
-                  <span className="stat-number">0</span>
+                  <span className="stat-number">{getReadingStats().readBooks}</span>
                   <span className="stat-label">Okunan Kitap</span>
+                </div>
+              </div>
+              <div className="stat-card" onClick={() => setActiveView("library")}>
+                <div className="stat-icon">📚</div>
+                <div className="stat-info">
+                  <span className="stat-number">{getReadingStats().totalBooks}</span>
+                  <span className="stat-label">Toplam Kitap</span>
                 </div>
               </div>
               <div
@@ -188,11 +211,11 @@ const Dashboard: React.FC = () => {
                   <span className="stat-label">Bağlantı</span>
                 </div>
               </div>
-              <div className="stat-card">
+              <div className="stat-card" onClick={() => setActiveView("library")}>
                 <div className="stat-icon">⭐</div>
                 <div className="stat-info">
-                  <span className="stat-number">0</span>
-                  <span className="stat-label">Değerlendirme</span>
+                  <span className="stat-number">{getReadingStats().averageRating.toFixed(1)}</span>
+                  <span className="stat-label">Ort. Puan</span>
                 </div>
               </div>
             </div>
@@ -266,7 +289,10 @@ const Dashboard: React.FC = () => {
                 parçası ol.
               </p>
               <div className="cta-buttons">
-                <button className="cta-button primary">
+                <button 
+                  className="cta-button primary"
+                  onClick={() => setActiveView("add-book")}
+                >
                   İlk Kitabını Ekle
                 </button>
                 <button
@@ -279,11 +305,19 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </main>
-      ) : (
+      ) : activeView === "follow" ? (
         <main className="dashboard-main">
           <FollowSystem view="discover" />
         </main>
-      )}
+      ) : activeView === "add-book" ? (
+        <main className="dashboard-main">
+          <AddBook onBookAdded={() => setActiveView("library")} />
+        </main>
+      ) : activeView === "library" ? (
+        <main className="dashboard-main">
+          <BookLibrary />
+        </main>
+      ) : null}
     </div>
   );
 };

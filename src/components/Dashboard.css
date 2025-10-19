@@ -125,6 +125,36 @@
   background: #feb2b2;
 }
 
+.nav-button {
+  background: #f7fafc;
+  color: #4a5568;
+  border: 2px solid #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-button:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  color: #2d3748;
+}
+
+.nav-button.active {
+  background: #3182ce;
+  color: white;
+  border-color: #3182ce;
+}
+
+.nav-button.active:hover {
+  background: #2c5282;
+  border-color: #2c5282;
+}
+
 .dashboard-main {
   max-width: 1200px;
   margin: 0 auto;
@@ -183,6 +213,15 @@
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon {
@@ -442,6 +481,11 @@
   .header-actions {
     flex-direction: column;
     gap: 8px;
+  }
+  
+  .nav-button {
+    width: 100%;
+    text-align: center;
   }
 
   .dashboard-main {
