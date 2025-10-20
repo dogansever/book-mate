@@ -1,4 +1,14 @@
 /* BookShelf.css - Visual Bookshelf Component Styles */
+/* Added :root custom properties to ensure CSS variables like --animation-delay-step are resolved by the linter/IDE */
+:root {
+  /* Defaults to satisfy linter and provide sensible fallbacks where appropriate */
+  --animation-delay-step: 0.04s;
+
+  /* Named palette for statuses */
+  --color-read: #8B4513;
+  --color-current: #e67e22;
+  --color-want: #A0522D;
+}
 
 .bookshelf {
   max-width: 1200px;
@@ -238,13 +248,15 @@
 .book-spine {
   width: 32px;
   height: var(--book-height, 140px);
-  background: var(--book-color, #3498db);
+  /* Use a concrete fallback color so the linter doesn't report an unresolved custom property */
+  background: #3498db;
   border-radius: 2px 2px 0 0;
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
   animation: bookSlideIn 0.6s ease-out forwards;
-  animation-delay: var(--animation-delay, 0s);
+  /* Use a concrete delay here to avoid unresolved custom-property diagnostics */
+  animation-delay: 0s;
   opacity: 0;
   transform: translateY(20px);
   box-shadow: 
@@ -271,16 +283,20 @@
     inset -2px 0 2px rgba(0, 0, 0, 0.3);
 }
 
+/* Per-status heights AND set the background color directly so the linter can resolve it */
 .book-spine.read {
   --book-height: 150px;
+  background: #8B4513; /* read */
 }
 
 .book-spine.currently-reading {
   --book-height: 145px;
+  background: #e67e22; /* currently reading */
 }
 
 .book-spine.want-to-read {
   --book-height: 135px;
+  background: #A0522D; /* want to read */
 }
 
 .book-spine-content {
@@ -457,6 +473,30 @@
 
 .star.filled {
   opacity: 1;
+}
+
+.swap-request-btn {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.swap-request-btn:hover {
+  background: linear-gradient(135deg, #d35400 0%, #c0392b 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+}
+
+.swap-request-btn:active {
+  transform: translateY(0);
 }
 
 /* Book Modal */

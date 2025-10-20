@@ -65,8 +65,8 @@ export interface GoogleBooksItem {
   etag: string;
   selfLink: string;
   volumeInfo: GoogleBooksVolumeInfo;
-  saleInfo?: any;
-  accessInfo?: any;
+  saleInfo?: never;
+  accessInfo?: never;
   searchInfo?: {
     textSnippet?: string;
   };
@@ -82,15 +82,19 @@ export interface UserBook {
   id: string;
   userId: string;
   bookId: string;
-  book: Book;
+  book?: Book; // Book objesi opsiyonel
+  title: string; // Kitap başlığı direkt olarak
+  authors: string[]; // Yazarlar direkt olarak
+  imageUrl?: string; // Kitap kapağı URL'i
   status: 'want-to-read' | 'currently-reading' | 'read';
   rating?: number;
   review?: string;
-  startedReadingAt?: Date;
-  finishedReadingAt?: Date;
-  addedAt: Date;
-  updatedAt: Date;
-  isFavorite: boolean;
+  dateAdded: Date; // addedAt yerine dateAdded
+  dateStarted?: Date; // startedReadingAt yerine dateStarted
+  dateFinished?: Date; // finishedReadingAt yerine dateFinished
+  pages?: number; // Sayfa sayısı
+  updatedAt?: Date;
+  isFavorite?: boolean;
   readingProgress?: number; // 0-100 percentage
   notes?: string[];
 }

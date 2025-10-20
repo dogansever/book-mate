@@ -1,21 +1,31 @@
 import React, { useState, useMemo } from 'react';
 import { useUserBooks } from '../contexts/UserBooksContext';
+import { useBookSwap } from '../contexts/BookSwapContext';
+import { useAuth } from '../hooks/useAuth';
 import { UserBook } from '../types/book';
+import SwapRequestModal from './SwapRequestModal';
 import './BookShelf.css';
 
 interface BookShelfProps {
   onBookClick?: (userBook: UserBook) => void;
   displayMode?: 'shelf' | 'grid';
   maxBooksPerShelf?: number;
+  userId?: string; // If provided, shows other user's books with swap options
+  showSwapOptions?: boolean;
 }
 
 const BookShelf: React.FC<BookShelfProps> = ({ 
   onBookClick, 
   displayMode = 'shelf',
-  maxBooksPerShelf = 8 
+  maxBooksPerShelf = 8,
+                                                 showSwapOptions = false
 }) => {
+  const { state } = useAuth();
+  const { canRequestSwap } = useBookSwap();
   const [activeFilter, setActiveFilter] = useState<'all' | UserBook['status']>('all');
   const [selectedBook, setSelectedBook] = useState<UserBook | null>(null);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [swapTargetBook, setSwapTargetBook] = useState<UserBook | null>(null);
   
   const {
     userBooks,
@@ -65,6 +75,16 @@ const BookShelf: React.FC<BookShelfProps> = ({
     onBookClick?.(userBook);
   };
 
+  const handleSwapRequest = (userBook: UserBook) => {
+    setSwapTargetBook(userBook);
+    setShowSwapModal(true);
+  };
+
+  const closeSwapModal = () => {
+    setShowSwapModal(false);
+    setSwapTargetBook(null);
+  };
+
   const handleStatusChange = async (userBookId: string, newStatus: UserBook['status']) => {
     try {
       await updateBookStatus(userBookId, newStatus);
@@ -112,11 +132,11 @@ const BookShelf: React.FC<BookShelfProps> = ({
         '--animation-delay': `${index * 0.1}s`
       } as React.CSSProperties}
       onClick={() => handleBookClick(userBook)}
-      title={`${userBook.book.title} - ${userBook.book.authors.join(', ')}`}
+      title={`${userBook.title} - ${userBook.authors.join(', ')}`}
     >
       <div className="book-spine-content">
-        <div className="book-title-spine">{userBook.book.title}</div>
-        <div className="book-author-spine">{userBook.book.authors[0]}</div>
+        <div className="book-title-spine">{userBook.title}</div>
+        <div className="book-author-spine">{userBook.authors[0]}</div>
         {userBook.rating && (
           <div className="book-rating-spine">
             {'⭐'.repeat(userBook.rating)}
@@ -240,10 +260,10 @@ const BookShelf: React.FC<BookShelfProps> = ({
               {filteredBooks.map((userBook) => (
                 <div key={userBook.id} className="book-card">
                   <div className="book-cover" onClick={() => handleBookClick(userBook)}>
-                    {userBook.book.imageLinks?.thumbnail ? (
-                      <img 
-                        src={userBook.book.imageLinks.thumbnail} 
-                        alt={userBook.book.title}
+                    {userBook.imageUrl ? (
+                      <img
+                        src={userBook.imageUrl}
+                        alt={userBook.title}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/placeholder-book.png';
                         }}
@@ -260,9 +280,26 @@ const BookShelf: React.FC<BookShelfProps> = ({
                     </div>
                   </div>
                   <div className="book-info">
-                    <h4 className="book-title">{userBook.book.title}</h4>
-                    <p className="book-author">{userBook.book.authors.join(', ')}</p>
+                    <h4 className="book-title">{userBook.title}</h4>
+                    <p className="book-author">{userBook.authors.join(', ')}</p>
                     {userBook.status === 'read' && renderStarRating(userBook)}
+                    
+                    {/* Swap Button for other users' books */}
+                    {showSwapOptions && 
+                     state.user && 
+                     userBook.userId !== state.user.id && 
+                     canRequestSwap(userBook.bookId, userBook.userId) && (
+                      <button 
+                        className="swap-request-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSwapRequest(userBook);
+                        }}
+                        title="Takas isteği gönder"
+                      >
+                        🔄 Takas İste
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -284,10 +321,10 @@ const BookShelf: React.FC<BookShelfProps> = ({
             
             <div className="modal-content">
               <div className="modal-book-cover">
-                {selectedBook.book.imageLinks?.thumbnail ? (
-                  <img 
-                    src={selectedBook.book.imageLinks.thumbnail} 
-                    alt={selectedBook.book.title}
+                {selectedBook.imageUrl ? (
+                  <img
+                    src={selectedBook.imageUrl}
+                    alt={selectedBook.title}
                   />
                 ) : (
                   <div className="book-placeholder">📚</div>
@@ -295,10 +332,10 @@ const BookShelf: React.FC<BookShelfProps> = ({
               </div>
               
               <div className="modal-book-details">
-                <h3>{selectedBook.book.title}</h3>
-                <p className="modal-authors">{selectedBook.book.authors.join(', ')}</p>
+                <h3>{selectedBook.title}</h3>
+                <p className="modal-authors">{selectedBook.authors.join(', ')}</p>
                 
-                {selectedBook.book.description && (
+                {selectedBook.book?.description && (
                   <p className="modal-description">{selectedBook.book.description}</p>
                 )}
                 
@@ -324,6 +361,19 @@ const BookShelf: React.FC<BookShelfProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Swap Request Modal */}
+      {showSwapModal && swapTargetBook && (
+        <SwapRequestModal
+          targetBook={swapTargetBook}
+          targetUser={swapTargetBook.userId ? { id: swapTargetBook.userId, displayName: 'Diğer Kullanıcı', email: '' } as never : {} as never}
+          onSubmit={async (offeredBookId: string, message: string) => {
+            console.log('Takas isteği:', { offeredBookId, message });
+            closeSwapModal();
+          }}
+          onClose={closeSwapModal}
+        />
       )}
     </div>
   );

@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { Book, UserBook, BookSearchFilters, BookSearchResult } from '../types/book';
+import { User } from '../types/user';
 import { GoogleBooksService } from '../services/googleBooksService';
+import { useAuth } from '../hooks/useAuth';
 
 export interface UserBooksContextValue {
   userBooks: UserBook[];
@@ -18,6 +20,8 @@ export interface UserBooksContextValue {
   clearSearchResults: () => void;
   getUserBookByBookId: (bookId: string) => UserBook | undefined;
   getBooksByStatus: (status: UserBook['status']) => UserBook[];
+  getAllUsers: () => Promise<User[]>;
+  getUserBooks: (userId: string) => Promise<UserBook[]>;
   getReadingStats: () => {
     totalBooks: number;
     readBooks: number;
@@ -35,13 +39,13 @@ const MOCK_USER_ID = 'user-1';
 
 interface UserBooksProviderProps {
   children: ReactNode;
-  userId?: string;
 }
 
 export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({ 
-  children, 
-  userId = MOCK_USER_ID 
+  children
 }) => {
+  const { state } = useAuth();
+  const userId = state.user?.id || MOCK_USER_ID; // Auth'den user ID al veya fallback
   const [userBooks, setUserBooks] = useState<UserBook[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,25 +53,69 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
+  // Initialize with some test books for the current user
+  useEffect(() => {
+    console.log('🔄 UserBooksContext useEffect - userId:', userId, 'userBooks.length:', userBooks.length);
+    if (userId) { // userId varsa kitapları kontrol et
+      // Mevcut kitapların userId'si yanlışsa temizle
+      const hasWrongUserId = userBooks.some(book => book.userId !== userId.toString());
+      if (hasWrongUserId || userBooks.length === 0) {
+        console.log('✅ Test kitapları yeniden oluşturuluyor, userId:', userId);
+        const testBooks: UserBook[] = [
+        {
+          id: 'ub-test-1',
+          userId: userId, // Dynamic user ID kullan
+          bookId: 'test-book-1',
+          title: 'Harry Potter ve Felsefe Taşı',
+          authors: ['J.K. Rowling'],
+          imageUrl: 'https://example.com/harry-potter.jpg',
+          status: 'read',
+          rating: 5,
+          dateAdded: new Date('2024-01-10'),
+          dateStarted: new Date('2024-01-12'),
+          dateFinished: new Date('2024-01-25'),
+          pages: 320
+        },
+        {
+          id: 'ub-test-2',
+          userId: userId, // Dynamic user ID kullan
+          bookId: 'test-book-2',
+          title: 'Benim Adım Kırmızı',
+          authors: ['Orhan Pamuk'],
+          imageUrl: 'https://example.com/benim-adim-kirmizi.jpg',
+          status: 'currently-reading',
+          dateAdded: new Date('2024-02-01'),
+          dateStarted: new Date('2024-02-03'),
+          pages: 560
+        }
+      ];
+      console.log('📚 Test kitapları yeniden oluşturuldu:', testBooks);
+      setUserBooks(testBooks);
+      }
+    }
+  }, [userId, userBooks]);
+
   const addBook = useCallback(async (book: Book, status: UserBook['status'] = 'want-to-read'): Promise<UserBook> => {
     try {
       setIsLoading(true);
       setError(null);
 
       // Check if book already exists for this user
-      const existingBook = userBooks.find(ub => ub.book.id === book.id);
+      const existingBook = userBooks.find(ub => ub.bookId === book.id);
       
       if (existingBook) {
         throw new Error('Bu kitap zaten kütüphanenizde mevcut.');
       }
 
       const newUserBook: UserBook = {
-        id: `user-book-${Date.now()}-${Math.random()}`,
+        id: `ub-${userId}-${Date.now()}`,
         userId,
         bookId: book.id,
-        book,
-        status,
-        addedAt: new Date(),
+        title: book.title,
+        authors: book.authors,
+        imageUrl: book.imageLinks?.thumbnail,
+        status: status || 'want-to-read',
+        dateAdded: new Date(),
         updatedAt: new Date(),
         isFavorite: false,
       };
@@ -96,11 +144,11 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
           };
 
           if (status === 'currently-reading' && ub.status !== 'currently-reading') {
-            updates.startedReadingAt = new Date();
+            updates.dateStarted = new Date();
           }
 
           if (status === 'read' && ub.status !== 'read') {
-            updates.finishedReadingAt = new Date();
+            updates.dateFinished = new Date();
             updates.readingProgress = 100;
           }
 
@@ -192,7 +240,7 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
   }, []);
 
   const getUserBookByBookId = useCallback((bookId: string) => {
-    return userBooks.find(ub => ub.book.id === bookId);
+    return userBooks.find(ub => ub.bookId === bookId);
   }, [userBooks]);
 
   const getBooksByStatus = useCallback((status: UserBook['status']) => {
@@ -210,7 +258,7 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
       ? ratedBooks.reduce((acc, ub) => acc + (ub.rating || 0), 0) / ratedBooks.length
       : 0;
 
-    const totalPages = userBooks.reduce((acc, ub) => acc + (ub.book.pageCount || 0), 0);
+    const totalPages = userBooks.reduce((acc, ub) => acc + (ub.pages || 0), 0);
 
     return {
       totalBooks,
@@ -221,6 +269,110 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
       totalPages,
     };
   }, [userBooks]);
+
+  // Mock fonksiyonlar - gerçek uygulamada API'den gelecek
+  const getAllUsers = useCallback(async (): Promise<User[]> => {
+    // Mock users data
+    return [
+      {
+        id: 'user-2',
+        email: 'ali@example.com',
+        displayName: 'Ali Demir',
+        avatar: '',
+        profile: {
+          isProfileComplete: true,
+          favoriteGenres: ['Roman', 'Bilim Kurgu'],
+          favoriteAuthors: [],
+          interests: [],
+          readingGoal: 24,
+          bio: 'Kitap tutkunu'
+        },
+        createdAt: new Date('2024-01-15'),
+        lastLoginAt: new Date()
+      },
+      {
+        id: 'user-3',
+        email: 'zehra@example.com',
+        displayName: 'Zehra Kaya',
+        avatar: '',
+        profile: {
+          isProfileComplete: true,
+          favoriteGenres: ['Klasik', 'Tarih'],
+          favoriteAuthors: [],
+          interests: [],
+          readingGoal: 36,
+          bio: 'Edebiyat meraklısı'
+        },
+        createdAt: new Date('2024-02-10'),
+        lastLoginAt: new Date()
+      }
+    ];
+  }, []);
+
+  const getUserBooks = useCallback(async (targetUserId: string): Promise<UserBook[]> => {
+    // Mock user books - gerçek uygulamada API'den gelecek
+    if (targetUserId === 'user-2') {
+      return [
+        {
+          id: 'ub-ali-1',
+          userId: 'user-2',
+          bookId: 'book-ali-1',
+          title: 'Suç ve Ceza',
+          authors: ['Fyodor Dostoyevski'],
+          imageUrl: 'https://example.com/crime-punishment.jpg',
+          status: 'read',
+          rating: 5,
+          review: 'Muhteşem bir klasik',
+          dateAdded: new Date('2024-01-20'),
+          dateStarted: new Date('2024-01-25'),
+          dateFinished: new Date('2024-02-15'),
+          pages: 624
+        },
+        {
+          id: 'ub-ali-2',
+          userId: 'user-2',
+          bookId: 'book-ali-2',
+          title: 'Dune',
+          authors: ['Frank Herbert'],
+          imageUrl: 'https://example.com/dune.jpg',
+          status: 'currently-reading',
+          dateAdded: new Date('2024-02-20'),
+          dateStarted: new Date('2024-02-22'),
+          pages: 896
+        }
+      ];
+    } else if (targetUserId === 'user-3') {
+      return [
+        {
+          id: 'ub-zehra-1',
+          userId: 'user-3',
+          bookId: 'book-zehra-1',
+          title: 'Madame Bovary',
+          authors: ['Gustave Flaubert'],
+          imageUrl: 'https://example.com/madame-bovary.jpg',
+          status: 'read',
+          rating: 4,
+          review: 'Harika bir realizm örneği',
+          dateAdded: new Date('2024-01-10'),
+          dateStarted: new Date('2024-01-12'),
+          dateFinished: new Date('2024-01-30'),
+          pages: 374
+        },
+        {
+          id: 'ub-zehra-2',
+          userId: 'user-3',
+          bookId: 'book-zehra-2',
+          title: 'Osmanlı Tarihi',
+          authors: ['Halil İnalcık'],
+          imageUrl: 'https://example.com/ottoman-history.jpg',
+          status: 'want-to-read',
+          dateAdded: new Date('2024-02-25'),
+          pages: 512
+        }
+      ];
+    }
+    return [];
+  }, []);
 
   const value: UserBooksContextValue = {
     userBooks,
@@ -238,6 +390,8 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
     clearSearchResults,
     getUserBookByBookId,
     getBooksByStatus,
+    getAllUsers,
+    getUserBooks,
     getReadingStats,
   };
 

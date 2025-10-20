@@ -3,19 +3,23 @@ export interface User {
   email: string;
   displayName: string;
   avatar?: string;
-  provider: "email" | "google" | "instagram";
+  provider?: "email" | "google" | "instagram";
   profile?: UserProfile;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
+  lastLoginAt?: Date;
 }
 
 export interface UserProfile {
   city?: string;
+  location?: string; // Konum bilgisi
   ageRange?: string;
   favoriteGenres: string[];
   favoriteAuthors: string[];
   interests: string[];
   intellectualBio?: string;
+  bio?: string; // Kısa bio
+  readingGoal?: number; // Yıllık okuma hedefi
   socialConnections?: SocialConnection[];
   followStats?: UserFollowStats;
   isProfileComplete: boolean;

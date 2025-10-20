@@ -49,7 +49,7 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
       setError(null);
 
       // Check if book already exists for this user
-      const existingBook = userBooks.find(ub => ub.book.id === book.id);
+      const existingBook = userBooks.find(ub => ub.bookId === book.id);
       console.log('🔍 Kitap zaten var mı?', !!existingBook);
       
       if (existingBook) {
@@ -58,12 +58,14 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
       }
 
       const newUserBook: UserBook = {
-        id: `user-book-${Date.now()}-${Math.random()}`,
+        id: `ub-${userId}-${Date.now()}`,
         userId,
         bookId: book.id,
-        book,
-        status,
-        addedAt: new Date(),
+        title: book.title,
+        authors: book.authors,
+        imageUrl: book.imageLinks?.thumbnail,
+        status: status || 'want-to-read',
+        dateAdded: new Date(),
         updatedAt: new Date(),
         isFavorite: false,
       };
@@ -102,11 +104,11 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
           };
 
           if (status === 'currently-reading' && ub.status !== 'currently-reading') {
-            updates.startedReadingAt = new Date();
+            updates.dateStarted = new Date();
           }
 
           if (status === 'read' && ub.status !== 'read') {
-            updates.finishedReadingAt = new Date();
+            updates.dateFinished = new Date();
             updates.readingProgress = 100;
           }
 
@@ -204,7 +206,7 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
   }, []);
 
   const getUserBookByBookId = useCallback((bookId: string) => {
-    return userBooks.find(ub => ub.book.id === bookId);
+    return userBooks.find(ub => ub.bookId === bookId);
   }, [userBooks]);
 
   const getBooksByStatus = useCallback((status: UserBook['status']) => {
@@ -221,7 +223,7 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     const ratedBooksCount = userBooks.filter(ub => ub.rating && ub.rating > 0).length;
     const averageRating = ratedBooksCount > 0 ? ratingsSum / ratedBooksCount : 0;
     
-    const totalPages = userBooks.reduce((sum, ub) => sum + (ub.book.pageCount || 0), 0);
+    const totalPages = userBooks.reduce((sum, ub) => sum + (ub.pages || 0), 0);
 
     return {
       totalBooks,

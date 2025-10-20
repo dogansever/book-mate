@@ -1,6 +1,7 @@
 import React from "react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserBooksProvider } from "./contexts/UserBooksContext";
+import { BookSwapProvider } from "./contexts/BookSwapContext";
 import { useAuth } from "./hooks/useAuth";
 import AuthWrapper from "./components/AuthWrapper";
 import Dashboard from "./components/Dashboard";
@@ -20,9 +21,11 @@ function App() {
   return (
     <AuthProvider>
       <UserBooksProvider>
-        <div className="App">
-          <AppContent />
-        </div>
+        <BookSwapProvider>
+          <div className="App">
+            <AppContent />
+          </div>
+        </BookSwapProvider>
       </UserBooksProvider>
     </AuthProvider>
   );

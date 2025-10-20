@@ -6,6 +6,8 @@ import ProfileSetup from "./ProfileSetup";
 import FollowSystem from "./FollowSystem";
 import AddBook from "./AddBook";
 import BookShelf from "./BookShelf";
+import SwapManager from "./SwapManager";
+import BookDiscovery from "./BookDiscovery";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
@@ -13,7 +15,7 @@ const Dashboard: React.FC = () => {
   const { followersCount, followingCount } = useFollow(state.user?.id);
   const { getReadingStats } = useUserBooks();
   const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library">(
+  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery">(
     "dashboard"
   );
 
@@ -82,6 +84,18 @@ const Dashboard: React.FC = () => {
                 className={`nav-button ${activeView === "follow" ? "active" : ""}`}
               >
                 👥 Kitapsever Ağı
+              </button>
+              <button
+                onClick={() => setActiveView("swaps")}
+                className={`nav-button ${activeView === "swaps" ? "active" : ""}`}
+              >
+                🔄 Kitap Takası
+              </button>
+              <button
+                onClick={() => setActiveView("discovery")}
+                className={`nav-button ${activeView === "discovery" ? "active" : ""}`}
+              >
+                🌍 Kitap Keşfi
               </button>
               <button
                 onClick={() => setShowProfileSetup(true)}
@@ -330,6 +344,14 @@ const Dashboard: React.FC = () => {
       ) : activeView === "library" ? (
         <main className="dashboard-main">
           <BookShelf />
+        </main>
+      ) : activeView === "swaps" ? (
+        <main className="dashboard-main">
+          <SwapManager />
+        </main>
+      ) : activeView === "discovery" ? (
+        <main className="dashboard-main">
+          <BookDiscovery />
         </main>
       ) : null}
     </div>
