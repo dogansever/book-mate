@@ -115,3 +115,42 @@ export interface BookSearchResult {
   totalResults: number;
   hasMore: boolean;
 }
+
+// Gelişmiş kitap arama ve filtreleme tipleri
+export interface SearchCriteria {
+  query?: string; // Genel arama terimi
+  title?: string; // Kitap adı
+  author?: string; // Yazar
+  genre?: string; // Tür/kategori
+  city?: string; // Şehir
+  owner?: string; // Kitap sahibi
+  status?: UserBook['status']; // Kitap durumu
+  minRating?: number; // Minimum puan
+  maxDistance?: number; // Maksimum mesafe (km)
+}
+
+export interface SearchFilters {
+  sortBy?: 'title' | 'author' | 'rating' | 'dateAdded' | 'distance';
+  sortOrder?: 'asc' | 'desc';
+  includeAvailableOnly?: boolean; // Sadece uygun kitaplar
+  includeNearbyOnly?: boolean; // Sadece yakındaki kullanıcılar
+}
+
+export interface SearchResultItem {
+  userBook: UserBook;
+  owner: {
+    id: string;
+    displayName: string;
+    city?: string;
+    avatar?: string;
+  };
+  distance?: number; // Mesafe (km)
+  matchScore?: number; // Arama skoru (0-1)
+}
+
+export interface BookSearchResponse {
+  results: SearchResultItem[];
+  totalResults: number;
+  appliedFilters: SearchCriteria & SearchFilters;
+  nearbyResults?: SearchResultItem[]; // Yakındaki öneriler
+}

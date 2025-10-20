@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/only-throw-error */
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { SwapRequest, SwapMessage, SwapChat, SwapStats, CreateSwapRequestData, UpdateSwapRequestData } from '../types/swap';
 import { UserBook } from '../types/book';
@@ -75,16 +76,41 @@ export const BookSwapProvider: React.FC<BookSwapProviderProps> = ({ children }) 
       // getUserBookByBookId sadece kendi kitaplarımızda arar, burada mock data kullanacağız
       let requestedBook;
       
-      // Mock data - gerçek uygulamada API'den gelecek
-      const allMockBooks = [
-        { bookId: 'book-ali-1', title: 'Suç ve Ceza', authors: ['Fyodor Dostoyevski'], imageUrl: 'https://example.com/crime-punishment.jpg' },
-        { bookId: 'book-ali-2', title: 'Dune', authors: ['Frank Herbert'], imageUrl: 'https://example.com/dune.jpg' },
-        { bookId: 'book-zehra-1', title: 'Madame Bovary', authors: ['Gustave Flaubert'], imageUrl: 'https://example.com/madame-bovary.jpg' },
-        { bookId: 'book-zehra-2', title: 'Osmanlı Tarihi', authors: ['Halil İnalcık'], imageUrl: 'https://example.com/ottoman-history.jpg' }
-      ];
+      // Yeni mock data servisini kullan
+      const { getAllMockUserBooks } = await import('../services/mockDataService');
+      const allUserBooks = getAllMockUserBooks();
+      const allMockBooks = allUserBooks.map(book => ({
+        bookId: book.bookId,
+        title: book.title,
+        authors: book.authors,
+        imageUrl: book.imageUrl
+      }));
       
-      const mockBook = allMockBooks.find(book => book.bookId === data.requestedBookId);
+      console.log('🔍 BookSwapContext - İstenen kitap aranıyor:');
+      console.log('- data.requestedBookId:', data.requestedBookId);
+      console.log('- allMockBooks:', allMockBooks);
+      
+      // Hem bookId hem de id alanlarında ara (esneklik için)
+      let mockBook = allMockBooks.find(book => book.bookId === data.requestedBookId);
+      
       if (!mockBook) {
+        // UserBook ID'si ile de dene
+        const allUserBooks = getAllMockUserBooks();
+        const userBook = allUserBooks.find(book => book.id === data.requestedBookId || book.bookId === data.requestedBookId);
+        if (userBook) {
+          mockBook = {
+            bookId: userBook.bookId,
+            title: userBook.title,
+            authors: userBook.authors,
+            imageUrl: userBook.imageUrl
+          };
+        }
+      }
+      
+      console.log('- mockBook bulundu mu?', mockBook);
+      
+      if (!mockBook) {
+        console.error('❌ Kitap bulunamadı! Mevcut bookId\'ler:', allMockBooks.map(b => b.bookId));
         throw new Error('İstenen kitap bulunamadı.');
       }
       
@@ -154,7 +180,7 @@ export const BookSwapProvider: React.FC<BookSwapProviderProps> = ({ children }) 
     } finally {
       setIsLoading(false);
     }
-  }, [state.user, swapRequests, getUserBookByBookId]);
+  }, [state.user, swapRequests, getUserBookByBookId, userBooks]);
 
   const updateSwapRequest = useCallback(async (requestId: string, data: UpdateSwapRequestData) => {
     try {
@@ -229,7 +255,8 @@ export const BookSwapProvider: React.FC<BookSwapProviderProps> = ({ children }) 
     } catch (err) {
       throw err;
     }
-  }, [state.user, updateSwapRequest]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateSwapRequest]);
 
   const rejectSwapRequest = useCallback(async (requestId: string, reason?: string) => {
       // eslint-disable-next-line no-useless-catch
@@ -311,6 +338,7 @@ export const BookSwapProvider: React.FC<BookSwapProviderProps> = ({ children }) 
       setError(errorMessage);
       throw err;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps  
   }, [state.user]);
 
   const markMessagesAsRead = useCallback(async (swapRequestId: string) => {
@@ -425,6 +453,7 @@ export const BookSwapProvider: React.FC<BookSwapProviderProps> = ({ children }) 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useBookSwap = (): BookSwapContextValue => {
   const context = useContext(BookSwapContext);
   if (context === undefined) {

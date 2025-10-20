@@ -12,7 +12,11 @@ export interface User {
 
 export interface UserProfile {
   city?: string;
-  location?: string; // Konum bilgisi
+  location?: string; // Konum bilgisi (şehir/bölge)
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  }; // GPS koordinatları
   ageRange?: string;
   favoriteGenres: string[];
   favoriteAuthors: string[];

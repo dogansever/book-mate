@@ -272,41 +272,8 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
 
   // Mock fonksiyonlar - gerçek uygulamada API'den gelecek
   const getAllUsers = useCallback(async (): Promise<User[]> => {
-    // Mock users data
-    return [
-      {
-        id: 'user-2',
-        email: 'ali@example.com',
-        displayName: 'Ali Demir',
-        avatar: '',
-        profile: {
-          isProfileComplete: true,
-          favoriteGenres: ['Roman', 'Bilim Kurgu'],
-          favoriteAuthors: [],
-          interests: [],
-          readingGoal: 24,
-          bio: 'Kitap tutkunu'
-        },
-        createdAt: new Date('2024-01-15'),
-        lastLoginAt: new Date()
-      },
-      {
-        id: 'user-3',
-        email: 'zehra@example.com',
-        displayName: 'Zehra Kaya',
-        avatar: '',
-        profile: {
-          isProfileComplete: true,
-          favoriteGenres: ['Klasik', 'Tarih'],
-          favoriteAuthors: [],
-          interests: [],
-          readingGoal: 36,
-          bio: 'Edebiyat meraklısı'
-        },
-        createdAt: new Date('2024-02-10'),
-        lastLoginAt: new Date()
-      }
-    ];
+    const { getAllMockUsers } = await import('../services/mockDataService');
+    return getAllMockUsers();
   }, []);
 
   const getUserBooks = useCallback(async (targetUserId: string): Promise<UserBook[]> => {
@@ -371,7 +338,10 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
         }
       ];
     }
-    return [];
+    
+    // Yeni mock data servisini kullan
+    const { getUserBooksById } = await import('../services/mockDataService');
+    return getUserBooksById(targetUserId);
   }, []);
 
   const value: UserBooksContextValue = {
@@ -402,6 +372,7 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUserBooks = (): UserBooksContextValue => {
   const context = useContext(UserBooksContext);
   if (context === undefined) {

@@ -26,28 +26,31 @@ const BookLibrary: React.FC<BookLibraryProps> = ({ onBookClick }) => {
   const stats = getReadingStats();
 
   const filteredAndSortedBooks = useMemo(() => {
-    let filtered = activeFilter === 'all' ? userBooks : getBooksByStatus(activeFilter);
+    const filtered = activeFilter === 'all' ? userBooks : getBooksByStatus(activeFilter);
     
-    const sorted = [...filtered].sort((a, b) => {
-      let comparison = 0;
+    return [...filtered].sort((a, b) => {
+      let comparison;
       
       switch (sortBy) {
-        case 'title':
-          comparison = a.book.title.localeCompare(b.book.title, 'tr');
+        case 'title': {
+          const titleA = a.title || a.book?.title || '';
+          const titleB = b.title || b.book?.title || '';
+          comparison = titleA.localeCompare(titleB, 'tr');
           break;
-        case 'rating':
+        }
+        case 'rating': {
           comparison = (b.rating || 0) - (a.rating || 0);
           break;
+        }
         case 'addedAt':
-        default:
-          comparison = new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+        default: {
+          comparison = new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
           break;
+        }
       }
       
       return sortOrder === 'asc' ? -comparison : comparison;
     });
-    
-    return sorted;
   }, [userBooks, activeFilter, sortBy, sortOrder, getBooksByStatus]);
 
   const formatAuthors = (authors: string[]) => {
@@ -208,7 +211,7 @@ const BookLibrary: React.FC<BookLibraryProps> = ({ onBookClick }) => {
             <div className="sort-controls">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as 'addedAt' | 'title' | 'rating')}
                 className="sort-select"
               >
                 <option value="addedAt">Eklenme Tarihi</option>
@@ -226,13 +229,13 @@ const BookLibrary: React.FC<BookLibraryProps> = ({ onBookClick }) => {
           </div>
 
           <div className="books-grid">
-            {filteredAndSortedBooks.map((userBook) => (
+            {filteredAndSortedBooks.map((userBook: UserBook) => (
               <div key={userBook.id} className="user-book-card">
                 <div className="book-image" onClick={() => onBookClick?.(userBook)}>
-                  {userBook.book.imageLinks?.thumbnail ? (
+                  {userBook.imageUrl || userBook.book?.imageLinks?.thumbnail ? (
                     <img 
-                      src={userBook.book.imageLinks.thumbnail} 
-                      alt={userBook.book.title}
+                      src={userBook.imageUrl || userBook.book?.imageLinks?.thumbnail || ''} 
+                      alt={userBook.title || userBook.book?.title || 'Kitap'}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/placeholder-book.png';
                       }}
@@ -253,11 +256,11 @@ const BookLibrary: React.FC<BookLibraryProps> = ({ onBookClick }) => {
                 <div className="book-content">
                   <div className="book-info">
                     <h4 className="book-title" onClick={() => onBookClick?.(userBook)}>
-                      {userBook.book.title}
+                      {userBook.title || userBook.book?.title}
                     </h4>
-                    <p className="book-authors">{formatAuthors(userBook.book.authors)}</p>
+                    <p className="book-authors">{formatAuthors(userBook.authors || userBook.book?.authors || [])}</p>
                     
-                    {userBook.book.publishedDate && (
+                    {userBook.book?.publishedDate && (
                       <p className="book-year">📅 {userBook.book.publishedDate}</p>
                     )}
                   </div>
