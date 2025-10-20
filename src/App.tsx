@@ -1,5 +1,6 @@
 import React from "react";
 import { AuthProvider } from "./contexts/AuthContext";
+import { UserBooksProvider } from "./contexts/UserBooksContext";
 import { useAuth } from "./hooks/useAuth";
 import AuthWrapper from "./components/AuthWrapper";
 import Dashboard from "./components/Dashboard";
@@ -18,9 +19,11 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <div className="App">
-        <AppContent />
-      </div>
+      <UserBooksProvider>
+        <div className="App">
+          <AppContent />
+        </div>
+      </UserBooksProvider>
     </AuthProvider>
   );
 }

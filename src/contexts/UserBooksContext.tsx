@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Book, UserBook, BookSearchFilters, BookSearchResult } from '../types/book';
 import { GoogleBooksService } from '../services/googleBooksService';
 
-export interface UseUserBooksReturn {
+export interface UserBooksContextValue {
   userBooks: UserBook[];
   isLoading: boolean;
   error: string | null;
@@ -28,10 +28,20 @@ export interface UseUserBooksReturn {
   };
 }
 
+const UserBooksContext = createContext<UserBooksContextValue | undefined>(undefined);
+
 // Mock user ID - In a real app, this would come from auth context
 const MOCK_USER_ID = 'user-1';
 
-export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn => {
+interface UserBooksProviderProps {
+  children: ReactNode;
+  userId?: string;
+}
+
+export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({ 
+  children, 
+  userId = MOCK_USER_ID 
+}) => {
   const [userBooks, setUserBooks] = useState<UserBook[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,20 +50,14 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
   const [searchError, setSearchError] = useState<string | null>(null);
 
   const addBook = useCallback(async (book: Book, status: UserBook['status'] = 'want-to-read'): Promise<UserBook> => {
-    console.log('📚 useUserBooks addBook çağrıldı:', { bookTitle: book.title, bookId: book.id, status });
-    console.log('👤 Kullanıcı ID:', userId);
-    console.log('📖 Mevcut kitaplar:', userBooks.length);
-    
     try {
       setIsLoading(true);
       setError(null);
 
       // Check if book already exists for this user
       const existingBook = userBooks.find(ub => ub.book.id === book.id);
-      console.log('🔍 Kitap zaten var mı?', !!existingBook);
       
       if (existingBook) {
-        console.log('⚠️ Kitap zaten mevcut:', existingBook);
         throw new Error('Bu kitap zaten kütüphanenizde mevcut.');
       }
 
@@ -67,20 +71,10 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
         updatedAt: new Date(),
         isFavorite: false,
       };
-
-      console.log('📝 Yeni UserBook oluşturuldu:', newUserBook);
       
-      setUserBooks(prev => {
-        console.log('🔄 UserBooks state güncelleniyor. Önceki:', prev.length);
-        const newState = [...prev, newUserBook];
-        console.log('🔄 UserBooks state güncellendi. Sonraki:', newState.length);
-        return newState;
-      });
-      
-      console.log('✅ addBook tamamlandı');
+      setUserBooks(prev => [...prev, newUserBook]);
       return newUserBook;
     } catch (err) {
-      console.error('❌ addBook hatası:', err);
       const errorMessage = err instanceof Error ? err.message : 'Kitap eklenirken bir hata oluştu.';
       setError(errorMessage);
       throw err;
@@ -117,7 +111,6 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap durumu güncellenirken bir hata oluştu.';
       setError(errorMessage);
-      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +125,7 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
         if (ub.id === userBookId) {
           return {
             ...ub,
-            rating,
+            rating: rating === 0 ? undefined : rating,
             review,
             updatedAt: new Date(),
           };
@@ -140,9 +133,8 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
         return ub;
       }));
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Kitap değerlendirmesi güncellenirken bir hata oluştu.';
+      const errorMessage = err instanceof Error ? err.message : 'Kitap puanı güncellenirken bir hata oluştu.';
       setError(errorMessage);
-      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -157,7 +149,6 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap kaldırılırken bir hata oluştu.';
       setError(errorMessage);
-      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -171,9 +162,8 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
       const results = await GoogleBooksService.searchBooks(filters);
       setSearchResults(results);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Kitap araması sırasında bir hata oluştu.';
+      const errorMessage = err instanceof Error ? err.message : 'Kitap arama sırasında bir hata oluştu.';
       setSearchError(errorMessage);
-      throw err;
     } finally {
       setIsSearching(false);
     }
@@ -184,15 +174,13 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
       setIsSearching(true);
       setSearchError(null);
 
-      if (!GoogleBooksService.isValidISBN(isbn)) {
-        throw new Error('Geçersiz ISBN formatı. Lütfen 10 veya 13 haneli geçerli bir ISBN girin.');
-      }
-
-      return await GoogleBooksService.searchByISBN(isbn);
+      // Search by ISBN using the regular search function
+      const results = await GoogleBooksService.searchBooks({ query: '', isbn, maxResults: 1 });
+      return results.books.length > 0 ? results.books[0] : null;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'ISBN araması sırasında bir hata oluştu.';
+      const errorMessage = err instanceof Error ? err.message : 'ISBN ile arama sırasında bir hata oluştu.';
       setSearchError(errorMessage);
-      throw err;
+      return null;
     } finally {
       setIsSearching(false);
     }
@@ -216,12 +204,13 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     const readBooks = userBooks.filter(ub => ub.status === 'read').length;
     const currentlyReading = userBooks.filter(ub => ub.status === 'currently-reading').length;
     const wantToRead = userBooks.filter(ub => ub.status === 'want-to-read').length;
-    
-    const ratingsSum = userBooks.reduce((sum, ub) => sum + (ub.rating || 0), 0);
-    const ratedBooksCount = userBooks.filter(ub => ub.rating && ub.rating > 0).length;
-    const averageRating = ratedBooksCount > 0 ? ratingsSum / ratedBooksCount : 0;
-    
-    const totalPages = userBooks.reduce((sum, ub) => sum + (ub.book.pageCount || 0), 0);
+
+    const ratedBooks = userBooks.filter(ub => ub.rating && ub.rating > 0);
+    const averageRating = ratedBooks.length > 0
+      ? ratedBooks.reduce((acc, ub) => acc + (ub.rating || 0), 0) / ratedBooks.length
+      : 0;
+
+    const totalPages = userBooks.reduce((acc, ub) => acc + (ub.book.pageCount || 0), 0);
 
     return {
       totalBooks,
@@ -233,7 +222,7 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     };
   }, [userBooks]);
 
-  return {
+  const value: UserBooksContextValue = {
     userBooks,
     isLoading,
     error,
@@ -251,4 +240,18 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     getBooksByStatus,
     getReadingStats,
   };
+
+  return (
+    <UserBooksContext.Provider value={value}>
+      {children}
+    </UserBooksContext.Provider>
+  );
+};
+
+export const useUserBooks = (): UserBooksContextValue => {
+  const context = useContext(UserBooksContext);
+  if (context === undefined) {
+    throw new Error('useUserBooks must be used within a UserBooksProvider');
+  }
+  return context;
 };

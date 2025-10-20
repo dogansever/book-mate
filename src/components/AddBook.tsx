@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Book, UserBook } from '../types/book';
 import { GoogleBooksService } from '../services/googleBooksService';
-import { useUserBooks } from '../hooks/useUserBooks';
+import { useUserBooks } from '../contexts/UserBooksContext';
 import './AddBook.css';
 
 interface AddBookProps {
@@ -13,6 +13,8 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isISBNSearch, setIsISBNSearch] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<UserBook['status']>('want-to-read');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [addedBookIds, setAddedBookIds] = useState<Set<string>>(new Set());
   
   const {
     searchResults,
@@ -35,6 +37,7 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
     }
 
     clearSearchResults();
+    setAddedBookIds(new Set()); // Clear recently added books when starting new search
 
     try {
       if (isISBNSearch) {
@@ -53,14 +56,25 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
 
   const handleAddBook = async (book: Book) => {
     try {
-      await addBook(book, selectedStatus);
-      onBookAdded?.(getUserBookByBookId(book.id)!);
+      setSuccessMessage(''); // Clear any previous success message
       
-      // Clear search after successful add
-      setSearchQuery('');
-      clearSearchResults();
+      const addedUserBook = await addBook(book, selectedStatus);
+      
+      // Add book ID to the local state to immediately update UI
+      setAddedBookIds(prev => new Set([...prev, book.id]));
+      
+      // Show success message
+      setSuccessMessage(`"${book.title}" kitabı kütüphanenize başarıyla eklendi!`);
+      
+      // Call the callback
+      onBookAdded?.(addedUserBook);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(''), 3000);
+      
     } catch (err) {
-      console.error('Add book error:', err);
+      console.error('Kitap ekleme hatası:', err);
+      setSuccessMessage(''); // Clear success message on error
     }
   };
 
@@ -168,6 +182,12 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
         </div>
       )}
 
+      {successMessage && (
+        <div className="success-message">
+          ✅ {successMessage}
+        </div>
+      )}
+
       {searchResults && (
         <div className="search-results">
           <h3>Arama Sonuçları ({searchResults.totalResults} sonuç bulundu)</h3>
@@ -179,7 +199,9 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
           ) : (
             <div className="books-grid">
               {searchResults.books.map((book) => {
-                const isAlreadyAdded = getUserBookByBookId(book.id);
+                const existingUserBook = getUserBookByBookId(book.id);
+                const isRecentlyAdded = addedBookIds.has(book.id);
+                const isAlreadyAdded = existingUserBook || isRecentlyAdded;
                 
                 return (
                   <div key={book.id} className="book-card">
@@ -242,9 +264,11 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
                       {isAlreadyAdded ? (
                         <div className="already-added">
                           ✅ Kütüphanende mevcut
-                          <span className="book-status">
-                            ({getStatusText(isAlreadyAdded.status)})
-                          </span>
+                          {existingUserBook && (
+                            <span className="book-status">
+                              ({getStatusText(existingUserBook.status)})
+                            </span>
+                          )}
                         </div>
                       ) : (
                         <button 

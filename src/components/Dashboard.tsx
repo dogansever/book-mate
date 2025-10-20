@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useFollow } from "../hooks/useFollow";
-import { useUserBooks } from "../hooks/useUserBooks";
+import { useUserBooks } from "../contexts/UserBooksContext";
 import ProfileSetup from "./ProfileSetup";
 import FollowSystem from "./FollowSystem";
 import AddBook from "./AddBook";
-import BookLibrary from "./BookLibrary";
+import BookShelf from "./BookShelf";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
   const { state, logout } = useAuth();
   const { followersCount, followingCount } = useFollow(state.user?.id);
-  const { getReadingStats } = useUserBooks(state.user?.id);
+  const { getReadingStats } = useUserBooks();
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library">(
     "dashboard"
@@ -220,6 +220,20 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
+            {/* Mini Bookshelf Preview */}
+            {getReadingStats().totalBooks > 0 && (
+              <div className="mini-bookshelf-preview">
+                <h4>📚 Kitap Rafım (Önizleme)</h4>
+                <BookShelf displayMode="grid" maxBooksPerShelf={4} />
+                <button 
+                  className="view-full-library"
+                  onClick={() => setActiveView("library")}
+                >
+                  Tüm Kütüphaneyi Gör →
+                </button>
+              </div>
+            )}
+
             <div className="provider-info">
               <span className="provider-badge">
                 {state.user.provider === "email" && "✉️ E-posta"}
@@ -315,7 +329,7 @@ const Dashboard: React.FC = () => {
         </main>
       ) : activeView === "library" ? (
         <main className="dashboard-main">
-          <BookLibrary />
+          <BookShelf />
         </main>
       ) : null}
     </div>
