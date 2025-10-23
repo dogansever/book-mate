@@ -13,6 +13,7 @@ import { PostProvider } from "../contexts/PostContext";
 import { MeetupProvider } from "../contexts/MeetupContext";
 import MeetupManager from "./MeetupManager";
 import MeetupPreview from "./MeetupPreview";
+import InvitationsList from "./InvitationsList";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
@@ -20,7 +21,7 @@ const Dashboard: React.FC = () => {
   const { followersCount, followingCount } = useFollow(state.user?.id);
   const { getReadingStats } = useUserBooks();
   const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery" | "posts" | "meetups">(
+  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery" | "posts" | "meetups" | "invitations">(
     "dashboard"
   );
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -146,6 +147,14 @@ const Dashboard: React.FC = () => {
                   <span className="nav-icon">🤝</span>
                   <span className="nav-text">Buluşma</span>
                 </button>
+                <button
+                  onClick={() => setActiveView("invitations")}
+                  className={`nav-button ${activeView === "invitations" ? "active" : ""}`}
+                  title="Grup Davetleri"
+                >
+                  <span className="nav-icon">📩</span>
+                  <span className="nav-text">Davetler</span>
+                </button>
               </div>
               <button
                 onClick={() => setShowProfileSetup(true)}
@@ -254,6 +263,16 @@ const Dashboard: React.FC = () => {
             >
               <span className="mobile-nav-icon">🤝</span>
               <span className="mobile-nav-text">Buluşma Grupları</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("invitations");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "invitations" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">📩</span>
+              <span className="mobile-nav-text">Grup Davetleri</span>
             </button>
             <div className="mobile-nav-divider"></div>
             <button
@@ -562,6 +581,12 @@ const Dashboard: React.FC = () => {
         <main className="dashboard-main">
           <MeetupProvider>
             <MeetupManager />
+          </MeetupProvider>
+        </main>
+      ) : activeView === "invitations" ? (
+        <main className="dashboard-main">
+          <MeetupProvider>
+            <InvitationsList />
           </MeetupProvider>
         </main>
       ) : null}

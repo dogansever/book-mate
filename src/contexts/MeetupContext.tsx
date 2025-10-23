@@ -10,7 +10,10 @@ import {
   MeetupSortOptions,
   MeetupStats,
   MeetupMessage,
-  MeetingSchedule
+  MeetingSchedule,
+  MeetupInvitation,
+  CreateInvitationData,
+  RespondToInvitationData
 } from '../types/meetup';
 import { meetupService } from '../services/meetupService';
 
@@ -22,6 +25,9 @@ interface MeetupState {
   sortOptions: MeetupSortOptions;
   isLoading: boolean;
   error: string | null;
+  // Davet sistemi
+  invitations: MeetupInvitation[];
+  sentInvitations: MeetupInvitation[];
 }
 
 type MeetupAction = 
@@ -36,7 +42,11 @@ type MeetupAction =
   | { type: 'UPDATE_MEETUP'; payload: Meetup }
   | { type: 'DELETE_MEETUP'; payload: string }
   | { type: 'ADD_MESSAGE'; payload: { meetupId: string; message: MeetupMessage } }
-  | { type: 'ADD_MEETING'; payload: { meetupId: string; meeting: MeetingSchedule } };
+  | { type: 'ADD_MEETING'; payload: { meetupId: string; meeting: MeetingSchedule } }
+  | { type: 'SET_INVITATIONS'; payload: MeetupInvitation[] }
+  | { type: 'SET_SENT_INVITATIONS'; payload: MeetupInvitation[] }
+  | { type: 'ADD_INVITATION'; payload: MeetupInvitation }
+  | { type: 'UPDATE_INVITATION'; payload: MeetupInvitation };
 
 const initialState: MeetupState = {
   meetups: [],
@@ -45,7 +55,9 @@ const initialState: MeetupState = {
   filters: {},
   sortOptions: { field: 'lastActivity', direction: 'desc' },
   isLoading: false,
-  error: null
+  error: null,
+  invitations: [],
+  sentInvitations: []
 };
 
 const meetupReducer = (state: MeetupState, action: MeetupAction): MeetupState => {
@@ -147,6 +159,35 @@ const meetupReducer = (state: MeetupState, action: MeetupAction): MeetupState =>
           : state.currentMeetup
       };
     
+    case 'SET_INVITATIONS':
+      return {
+        ...state,
+        invitations: action.payload
+      };
+    
+    case 'SET_SENT_INVITATIONS':
+      return {
+        ...state,
+        sentInvitations: action.payload
+      };
+    
+    case 'ADD_INVITATION':
+      return {
+        ...state,
+        sentInvitations: [action.payload, ...state.sentInvitations]
+      };
+    
+    case 'UPDATE_INVITATION':
+      return {
+        ...state,
+        invitations: state.invitations.map(inv =>
+          inv.id === action.payload.id ? action.payload : inv
+        ),
+        sentInvitations: state.sentInvitations.map(inv =>
+          inv.id === action.payload.id ? action.payload : inv
+        )
+      };
+    
     default:
       return state;
   }
@@ -176,6 +217,12 @@ interface MeetupContextValue {
   loadUserStats: (userId: string) => Promise<void>;
   setFilters: (filters: MeetupFilters) => void;
   setSortOptions: (sortOptions: MeetupSortOptions) => void;
+  
+  // Davet sistemi
+  sendInvitation: (data: CreateInvitationData, fromUserId: string) => Promise<void>;
+  respondToInvitation: (data: RespondToInvitationData, userId: string) => Promise<void>;
+  loadInvitations: (userId: string) => Promise<void>;
+  loadSentInvitations: (userId: string) => Promise<void>;
   
   // UI state
   setCurrentMeetup: (meetup: Meetup | null) => void;
@@ -355,6 +402,67 @@ export const MeetupProvider: React.FC<MeetupProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_CURRENT_MEETUP', payload: meetup });
   }, []);
 
+  // ==========================================
+  // DAVET SİSTEMİ FUNCTIONS
+  // ==========================================
+
+  // Send invitation
+  const sendInvitation = useCallback(async (data: CreateInvitationData, fromUserId: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const invitation = await meetupService.sendInvitation(data, fromUserId);
+      dispatch({ type: 'ADD_INVITATION', payload: invitation });
+      dispatch({ type: 'SET_LOADING', payload: false });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Davet gönderilirken hata oluştu' });
+      console.error('Send invitation error:', error);
+      throw error;
+    }
+  }, []);
+
+  // Respond to invitation
+  const respondToInvitation = useCallback(async (data: RespondToInvitationData, userId: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      await meetupService.respondToInvitation(data, userId);
+      
+      // Reload invitations to get updated status
+      const invitations = await meetupService.getUserInvitations(userId);
+      dispatch({ type: 'SET_INVITATIONS', payload: invitations });
+      
+      // Reload meetups to see if user joined a new meetup
+      await loadMeetups(userId);
+      
+      dispatch({ type: 'SET_LOADING', payload: false });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Davet yanıtlanırken hata oluştu' });
+      console.error('Respond to invitation error:', error);
+      throw error;
+    }
+  }, [loadMeetups]);
+
+  // Load user invitations
+  const loadInvitations = useCallback(async (userId: string) => {
+    try {
+      const invitations = await meetupService.getUserInvitations(userId);
+      dispatch({ type: 'SET_INVITATIONS', payload: invitations });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Davetler yüklenirken hata oluştu' });
+      console.error('Load invitations error:', error);
+    }
+  }, []);
+
+  // Load sent invitations
+  const loadSentInvitations = useCallback(async (userId: string) => {
+    try {
+      const sentInvitations = await meetupService.getSentInvitations(userId);
+      dispatch({ type: 'SET_SENT_INVITATIONS', payload: sentInvitations });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Gönderilen davetler yüklenirken hata oluştu' });
+      console.error('Load sent invitations error:', error);
+    }
+  }, []);
+
   // Clear error
   const clearError = useCallback(() => {
     dispatch({ type: 'SET_ERROR', payload: null });
@@ -381,6 +489,10 @@ export const MeetupProvider: React.FC<MeetupProviderProps> = ({ children }) => {
     loadUserStats,
     setFilters,
     setSortOptions,
+    sendInvitation,
+    respondToInvitation,
+    loadInvitations,
+    loadSentInvitations,
     setCurrentMeetup,
     clearError
   };

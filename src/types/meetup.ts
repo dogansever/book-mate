@@ -199,3 +199,31 @@ export const POPULAR_THEMES = [
   'Çocuk Kitapları',
   'Gençlik Romanları'
 ] as const;
+
+// Davet Sistemi Types
+export interface MeetupInvitation {
+  id: string;
+  meetupId: string;
+  meetup: Meetup;
+  fromUserId: string;
+  fromUser: User;
+  toUserId: string;
+  toUser: User;
+  status: 'pending' | 'accepted' | 'declined' | 'expired';
+  message?: string;
+  createdAt: string;
+  respondedAt?: string;
+  expiresAt?: string;
+}
+
+export interface CreateInvitationData {
+  meetupId: string;
+  toUserId: string;
+  message?: string;
+}
+
+export interface RespondToInvitationData {
+  invitationId: string;
+  response: 'accept' | 'decline';
+  message?: string;
+}

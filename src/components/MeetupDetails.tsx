@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Meetup, CreateMessageData, CreateMeetingData } from '../types/meetup';
+import InvitationModal from './InvitationModal';
 import './MeetupDetails.css';
 
 interface MeetupDetailsProps {
@@ -27,6 +28,7 @@ const MeetupDetails: React.FC<MeetupDetailsProps> = ({
   const [messageText, setMessageText] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [showMeetingForm, setShowMeetingForm] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [meetingForm, setMeetingForm] = useState<Partial<CreateMeetingData>>({
     title: '',
     description: '',
@@ -183,15 +185,24 @@ const MeetupDetails: React.FC<MeetupDetailsProps> = ({
           </div>
         )}
 
-        {isMember && !isOwner && (
+        {isMember && (
           <div className="action-bar">
             <button 
-              className="leave-btn" 
-              onClick={() => onLeaveMeetup(meetup.id)}
+              className="invite-btn" 
+              onClick={() => setShowInviteModal(true)}
               disabled={isLoading}
             >
-              Gruptan Ayrıl
+              📩 Arkadaş Davet Et
             </button>
+            {!isOwner && (
+              <button 
+                className="leave-btn" 
+                onClick={() => onLeaveMeetup(meetup.id)}
+                disabled={isLoading}
+              >
+                Gruptan Ayrıl
+              </button>
+            )}
           </div>
         )}
 
@@ -534,6 +545,14 @@ const MeetupDetails: React.FC<MeetupDetailsProps> = ({
           )}
         </div>
       </div>
+
+      {/* Invitation Modal */}
+      <InvitationModal
+        meetup={meetup}
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        currentUserId={currentUserId}
+      />
     </div>
   );
 };

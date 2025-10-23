@@ -78,6 +78,9 @@
   padding: 16px 24px;
   background: #f8faff;
   border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .join-private {
@@ -101,6 +104,7 @@
 
 .join-btn,
 .leave-btn,
+.invite-btn,
 .join-private button {
   padding: 10px 24px;
   border-radius: 8px;
@@ -129,6 +133,18 @@
 
 .leave-btn:hover {
   background: #dc2626;
+}
+
+.invite-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  flex: 1;
+}
+
+.invite-btn:hover {
+  background: linear-gradient(135deg, #5a6fd8, #6a3d91);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .tab-navigation {
