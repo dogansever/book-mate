@@ -10,6 +10,7 @@ export interface UseUserBooksReturn {
   isSearching: boolean;
   searchError: string | null;
   addBook: (book: Book, status?: UserBook['status']) => Promise<UserBook>;
+  addBookToLibrary: (book: Book, status?: UserBook['status']) => Promise<UserBook>;
   updateBookStatus: (userBookId: string, status: UserBook['status']) => Promise<void>;
   updateBookRating: (userBookId: string, rating: number, review?: string) => Promise<void>;
   removeBook: (userBookId: string) => Promise<void>;
@@ -243,6 +244,7 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     isSearching,
     searchError,
     addBook,
+    addBookToLibrary: addBook, // Alias for import compatibility
     updateBookStatus,
     updateBookRating,
     removeBook,

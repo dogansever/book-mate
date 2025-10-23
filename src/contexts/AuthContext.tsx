@@ -10,6 +10,7 @@ import {
 
 interface AuthContextType {
   state: AuthState;
+  user: User | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   socialLogin: (provider: SocialAuthProvider) => Promise<void>;
@@ -160,7 +161,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ state, login, register, socialLogin, updateProfile, logout }}
+      value={{ 
+        state, 
+        user: state.user, 
+        login, 
+        register, 
+        socialLogin, 
+        updateProfile, 
+        logout 
+      }}
     >
       {children}
     </AuthContext.Provider>

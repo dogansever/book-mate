@@ -157,3 +157,6 @@ export class GoogleBooksService {
     return isbn;
   }
 }
+
+// Export singleton instance
+export const googleBooksService = new GoogleBooksService();

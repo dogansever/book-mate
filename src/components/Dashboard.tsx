@@ -14,6 +14,7 @@ import { MeetupProvider } from "../contexts/MeetupContext";
 import MeetupManager from "./MeetupManager";
 import MeetupPreview from "./MeetupPreview";
 import InvitationsList from "./InvitationsList";
+import BookImport from "./BookImport";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
@@ -21,7 +22,7 @@ const Dashboard: React.FC = () => {
   const { followersCount, followingCount } = useFollow(state.user?.id);
   const { getReadingStats } = useUserBooks();
   const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery" | "posts" | "meetups" | "invitations">(
+  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery" | "posts" | "meetups" | "invitations" | "import">(
     "dashboard"
   );
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -155,6 +156,14 @@ const Dashboard: React.FC = () => {
                   <span className="nav-icon">📩</span>
                   <span className="nav-text">Davetler</span>
                 </button>
+                <button
+                  onClick={() => setActiveView("import")}
+                  className={`nav-button ${activeView === "import" ? "active" : ""}`}
+                  title="Excel/CSV İçe Aktarma"
+                >
+                  <span className="nav-icon">📊</span>
+                  <span className="nav-text">İçe Aktar</span>
+                </button>
               </div>
               <button
                 onClick={() => setShowProfileSetup(true)}
@@ -273,6 +282,16 @@ const Dashboard: React.FC = () => {
             >
               <span className="mobile-nav-icon">📩</span>
               <span className="mobile-nav-text">Grup Davetleri</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("import");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "import" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">📊</span>
+              <span className="mobile-nav-text">Excel İçe Aktar</span>
             </button>
             <div className="mobile-nav-divider"></div>
             <button
@@ -588,6 +607,10 @@ const Dashboard: React.FC = () => {
           <MeetupProvider>
             <InvitationsList />
           </MeetupProvider>
+        </main>
+      ) : activeView === "import" ? (
+        <main className="dashboard-main">
+          <BookImport />
         </main>
       ) : null}
     </div>

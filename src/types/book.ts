@@ -148,6 +148,8 @@ export interface SearchResultItem {
   matchScore?: number; // Arama skoru (0-1)
 }
 
+export type ReadingStatus = 'want-to-read' | 'currently-reading' | 'read';
+
 export interface BookSearchResponse {
   results: SearchResultItem[];
   totalResults: number;
