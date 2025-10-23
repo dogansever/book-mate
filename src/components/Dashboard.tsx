@@ -8,6 +8,8 @@ import AddBook from "./AddBook";
 import BookShelf from "./BookShelf";
 import SwapManager from "./SwapManager";
 import BookDiscovery from "./BookDiscovery";
+import PostFeed from "./PostFeed";
+import { PostProvider } from "../contexts/PostContext";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
@@ -15,9 +17,10 @@ const Dashboard: React.FC = () => {
   const { followersCount, followingCount } = useFollow(state.user?.id);
   const { getReadingStats } = useUserBooks();
   const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery">(
+  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery" | "posts">(
     "dashboard"
   );
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   if (!state.user) {
     return null;
@@ -61,42 +64,78 @@ const Dashboard: React.FC = () => {
               <span className="user-email">{state.user.email}</span>
             </div>
             <div className="header-actions">
+              {/* Hamburger Menu Button */}
               <button
-                onClick={() => setActiveView("dashboard")}
-                className={`nav-button ${activeView === "dashboard" ? "active" : ""}`}
+                className="hamburger-button"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                aria-label="Menü"
               >
-                🏠 Ana Sayfa
+                <div className={`hamburger-icon ${showMobileMenu ? 'open' : ''}`}>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
               </button>
-              <button
-                onClick={() => setActiveView("library")}
-                className={`nav-button ${activeView === "library" ? "active" : ""}`}
-              >
-                📚 Kütüphanem
-              </button>
-              <button
-                onClick={() => setActiveView("add-book")}
-                className={`nav-button ${activeView === "add-book" ? "active" : ""}`}
-              >
-                ➕ Kitap Ekle
-              </button>
-              <button
-                onClick={() => setActiveView("follow")}
-                className={`nav-button ${activeView === "follow" ? "active" : ""}`}
-              >
-                👥 Kitapsever Ağı
-              </button>
-              <button
-                onClick={() => setActiveView("swaps")}
-                className={`nav-button ${activeView === "swaps" ? "active" : ""}`}
-              >
-                🔄 Kitap Takası
-              </button>
-              <button
-                onClick={() => setActiveView("discovery")}
-                className={`nav-button ${activeView === "discovery" ? "active" : ""}`}
-              >
-                🌍 Kitap Keşfi
-              </button>
+
+              {/* Desktop Navigation - Always visible on desktop */}
+              <div className="desktop-nav">
+                <button
+                  onClick={() => setActiveView("dashboard")}
+                  className={`nav-button ${activeView === "dashboard" ? "active" : ""}`}
+                  title="Ana Sayfa"
+                >
+                  <span className="nav-icon">🏠</span>
+                  <span className="nav-text">Ana Sayfa</span>
+                </button>
+                <button
+                  onClick={() => setActiveView("library")}
+                  className={`nav-button ${activeView === "library" ? "active" : ""}`}
+                  title="Kütüphanem"
+                >
+                  <span className="nav-icon">📚</span>
+                  <span className="nav-text">Kütüphane</span>
+                </button>
+                <button
+                  onClick={() => setActiveView("add-book")}
+                  className={`nav-button ${activeView === "add-book" ? "active" : ""}`}
+                  title="Kitap Ekle"
+                >
+                  <span className="nav-icon">➕</span>
+                  <span className="nav-text">Ekle</span>
+                </button>
+                <button
+                  onClick={() => setActiveView("follow")}
+                  className={`nav-button ${activeView === "follow" ? "active" : ""}`}
+                  title="Kitapsever Ağı"
+                >
+                  <span className="nav-icon">👥</span>
+                  <span className="nav-text">Ağ</span>
+                </button>
+                <button
+                  onClick={() => setActiveView("swaps")}
+                  className={`nav-button ${activeView === "swaps" ? "active" : ""}`}
+                  title="Kitap Takası"
+                >
+                  <span className="nav-icon">🔄</span>
+                  <span className="nav-text">Takas</span>
+                </button>
+                <button
+                  onClick={() => setActiveView("discovery")}
+                  className={`nav-button ${activeView === "discovery" ? "active" : ""}`}
+                  title="Kitap Keşfi"
+                >
+                  <span className="nav-icon">🌍</span>
+                  <span className="nav-text">Keşif</span>
+                </button>
+                <button
+                  onClick={() => setActiveView("posts")}
+                  className={`nav-button ${activeView === "posts" ? "active" : ""}`}
+                  title="Paylaşımlar"
+                >
+                  <span className="nav-icon">💭</span>
+                  <span className="nav-text">Paylaşım</span>
+                </button>
+              </div>
               <button
                 onClick={() => setShowProfileSetup(true)}
                 className="profile-edit-button"
@@ -110,6 +149,115 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {/* Mobile Navigation Menu */}
+      <div className={`mobile-nav-overlay ${showMobileMenu ? 'active' : ''}`} onClick={() => setShowMobileMenu(false)}>
+        <nav className={`mobile-nav ${showMobileMenu ? 'active' : ''}`} onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-nav-header">
+            <h3>📚 Book Mate</h3>
+            <button 
+              className="mobile-nav-close" 
+              onClick={() => setShowMobileMenu(false)}
+              aria-label="Menüyü kapat"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="mobile-nav-content">
+            <button
+              onClick={() => {
+                setActiveView("dashboard");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "dashboard" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">🏠</span>
+              <span className="mobile-nav-text">Ana Sayfa</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("library");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "library" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">📚</span>
+              <span className="mobile-nav-text">Kütüphanem</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("add-book");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "add-book" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">➕</span>
+              <span className="mobile-nav-text">Kitap Ekle</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("follow");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "follow" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">👥</span>
+              <span className="mobile-nav-text">Kitapsever Ağı</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("swaps");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "swaps" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">🔄</span>
+              <span className="mobile-nav-text">Kitap Takası</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("discovery");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "discovery" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">🌍</span>
+              <span className="mobile-nav-text">Kitap Keşfi</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("posts");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "posts" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">💭</span>
+              <span className="mobile-nav-text">Paylaşımlar</span>
+            </button>
+            <div className="mobile-nav-divider"></div>
+            <button
+              onClick={() => {
+                setShowProfileSetup(true);
+                setShowMobileMenu(false);
+              }}
+              className="mobile-nav-item"
+            >
+              <span className="mobile-nav-icon">⚙️</span>
+              <span className="mobile-nav-text">Profili Düzenle</span>
+            </button>
+            <button
+              onClick={() => {
+                logout();
+                setShowMobileMenu(false);
+              }}
+              className="mobile-nav-item logout"
+            >
+              <span className="mobile-nav-icon">🚪</span>
+              <span className="mobile-nav-text">Çıkış Yap</span>
+            </button>
+          </div>
+        </nav>
+      </div>
 
       {activeView === "dashboard" ? (
         <main className="dashboard-main">
@@ -248,6 +396,20 @@ const Dashboard: React.FC = () => {
               </div>
             )}
 
+            {/* Mini Posts Preview */}
+            <div className="mini-posts-preview">
+              <h4>💭 Son Paylaşımlar</h4>
+              <PostProvider initialFilters={{}} limit={3}>
+                <PostFeed showCreatePost={false} limit={3} />
+              </PostProvider>
+              <button 
+                className="view-all-posts"
+                onClick={() => setActiveView("posts")}
+              >
+                Tüm Paylaşımları Gör →
+              </button>
+            </div>
+
             <div className="provider-info">
               <span className="provider-badge">
                 {state.user.provider === "email" && "✉️ E-posta"}
@@ -352,6 +514,12 @@ const Dashboard: React.FC = () => {
       ) : activeView === "discovery" ? (
         <main className="dashboard-main">
           <BookDiscovery />
+        </main>
+      ) : activeView === "posts" ? (
+        <main className="dashboard-main">
+          <PostProvider>
+            <PostFeed />
+          </PostProvider>
         </main>
       ) : null}
     </div>
