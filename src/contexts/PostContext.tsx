@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useState, useCallback, ReactNode } from 'react';
 import { 
   Post, 
   PostComment, 
@@ -325,14 +325,6 @@ export const PostProvider: React.FC<PostProviderProps> = ({
       {children}
     </PostContext.Provider>
   );
-};
-
-export const usePost = (): PostContextType => {
-  const context = useContext(PostContext);
-  if (!context) {
-    throw new Error('usePost must be used within a PostProvider');
-  }
-  return context;
 };
 
 export default PostContext;

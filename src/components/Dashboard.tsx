@@ -10,6 +10,9 @@ import SwapManager from "./SwapManager";
 import BookDiscovery from "./BookDiscovery";
 import PostFeed from "./PostFeed";
 import { PostProvider } from "../contexts/PostContext";
+import { MeetupProvider } from "../contexts/MeetupContext";
+import MeetupManager from "./MeetupManager";
+import MeetupPreview from "./MeetupPreview";
 import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
@@ -17,7 +20,7 @@ const Dashboard: React.FC = () => {
   const { followersCount, followingCount } = useFollow(state.user?.id);
   const { getReadingStats } = useUserBooks();
   const [showProfileSetup, setShowProfileSetup] = useState(false);
-  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery" | "posts">(
+  const [activeView, setActiveView] = useState<"dashboard" | "follow" | "add-book" | "library" | "swaps" | "discovery" | "posts" | "meetups">(
     "dashboard"
   );
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -135,6 +138,14 @@ const Dashboard: React.FC = () => {
                   <span className="nav-icon">💭</span>
                   <span className="nav-text">Paylaşım</span>
                 </button>
+                <button
+                  onClick={() => setActiveView("meetups")}
+                  className={`nav-button ${activeView === "meetups" ? "active" : ""}`}
+                  title="Buluşma Grupları"
+                >
+                  <span className="nav-icon">🤝</span>
+                  <span className="nav-text">Buluşma</span>
+                </button>
               </div>
               <button
                 onClick={() => setShowProfileSetup(true)}
@@ -233,6 +244,16 @@ const Dashboard: React.FC = () => {
             >
               <span className="mobile-nav-icon">💭</span>
               <span className="mobile-nav-text">Paylaşımlar</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveView("meetups");
+                setShowMobileMenu(false);
+              }}
+              className={`mobile-nav-item ${activeView === "meetups" ? "active" : ""}`}
+            >
+              <span className="mobile-nav-icon">🤝</span>
+              <span className="mobile-nav-text">Buluşma Grupları</span>
             </button>
             <div className="mobile-nav-divider"></div>
             <button
@@ -410,6 +431,22 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
 
+            {/* Mini Meetups Preview */}
+            <div className="mini-meetups-preview">
+              <h4>🤝 Aktif Buluşma Grupları</h4>
+              <div className="meetup-preview-cards">
+                <MeetupProvider>
+                  <MeetupPreview userId={state.user.id} />
+                </MeetupProvider>
+              </div>
+              <button 
+                className="view-all-meetups"
+                onClick={() => setActiveView("meetups")}
+              >
+                Tüm Grupları Gör →
+              </button>
+            </div>
+
             <div className="provider-info">
               <span className="provider-badge">
                 {state.user.provider === "email" && "✉️ E-posta"}
@@ -520,6 +557,12 @@ const Dashboard: React.FC = () => {
           <PostProvider>
             <PostFeed />
           </PostProvider>
+        </main>
+      ) : activeView === "meetups" ? (
+        <main className="dashboard-main">
+          <MeetupProvider>
+            <MeetupManager />
+          </MeetupProvider>
         </main>
       ) : null}
     </div>

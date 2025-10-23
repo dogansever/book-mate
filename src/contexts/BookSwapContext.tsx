@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/only-throw-error */
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { SwapRequest, SwapMessage, SwapChat, SwapStats, CreateSwapRequestData, UpdateSwapRequestData } from '../types/swap';
 import { UserBook } from '../types/book';
