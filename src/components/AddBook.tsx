@@ -189,7 +189,7 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
       )}
 
       {searchResults && (
-        <div className="search-results">
+        <div className="add-book-search-results">
           <h3>Arama Sonuçları ({searchResults.totalResults} sonuç bulundu)</h3>
           
           {searchResults.books.length === 0 ? (

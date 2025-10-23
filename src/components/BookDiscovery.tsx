@@ -162,7 +162,6 @@ const BookDiscovery: React.FC = () => {
     <div className="book-discovery">
       <div className="discovery-header">
         <h1>Kitap Keşfet</h1>
-        <p>Diğer kullanıcıların kitaplarını keşfedin ve takas teklifleri yapın</p>
       </div>
 
       {/* Konum İzni Bildirimi */}
@@ -203,18 +202,8 @@ const BookDiscovery: React.FC = () => {
         initialFilters={{}}
       />
 
-      {/* Yakındaki Kitaplar (Eğer konum varsa) */}
-      {location && nearbyResults.length > 0 && (
-        <div className="nearby-section">
-          <h2>🎯 Yakınınızdaki Kitaplar</h2>
-          <div className="books-grid nearby-books">
-            {nearbyResults.slice(0, 6).map(renderBookCard)}
-          </div>
-        </div>
-      )}
-
       {/* Arama Sonuçları */}
-      <div className="search-results">
+      <div className="book-discovery-search-results">
         {hasSearched ? (
           <h2>
             Arama Sonuçları ({searchResults.length} kitap bulundu)
@@ -244,6 +233,16 @@ const BookDiscovery: React.FC = () => {
           </div>
         ) : null}
       </div>
+
+      {/* Yakındaki Kitaplar (Eğer konum varsa) */}
+      {location && nearbyResults.length > 0 && (
+        <div className="nearby-section">
+          <h2>🎯 Yakınınızdaki Kitaplar</h2>
+          <div className="books-grid nearby-books">
+            {nearbyResults.slice(0, 6).map(renderBookCard)}
+          </div>
+        </div>
+      )}
 
       {/* Takas İsteği Modal */}
       {showSwapModal && selectedBook && (
