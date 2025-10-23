@@ -63,6 +63,11 @@ const MeetupManager: React.FC = () => {
     }
   };
 
+  // Wrapper for MeetupList component (only takes meetupId)
+  const handleJoinMeetupFromList = async (meetupId: string) => {
+    await handleJoinMeetup(meetupId);
+  };
+
   const handleLeaveMeetup = async (meetupId: string) => {
     if (!authState.user) return;
     
@@ -138,7 +143,7 @@ const MeetupManager: React.FC = () => {
         meetups={state.meetups}
         isLoading={state.isLoading}
         onMeetupSelect={handleMeetupSelect}
-        onJoinMeetup={handleJoinMeetup}
+        onJoinMeetup={handleJoinMeetupFromList}
         onFilterChange={setFilters}
         onSortChange={setSortOptions}
         currentUserId={authState.user.id}
