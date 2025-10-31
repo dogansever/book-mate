@@ -119,21 +119,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       dispatch({ type: "LOGIN_START" });
 
-      // Simulated social auth - replace with actual OAuth implementation
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Mock successful social login
-      const user: User = {
-        id: Date.now().toString(),
-        email: `user@${provider.provider}.com`,
-        displayName: `${provider.provider} User`,
-        provider: provider.provider,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      let user: User;
+      
+      if (provider.provider === "google" && provider.userData) {
+        // Gerçek Google OAuth user data'sını kullan
+        user = {
+          id: provider.userData.id,
+          email: provider.userData.email,
+          displayName: provider.userData.name,
+          avatar: provider.userData.picture,
+          provider: "google",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+      } else {
+        // Diğer providerlar için simulated login (Instagram vs.)
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        user = {
+          id: Date.now().toString(),
+          email: `user@${provider.provider}.com`,
+          displayName: `${provider.provider} User`,
+          provider: provider.provider,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+      }
 
       dispatch({ type: "LOGIN_SUCCESS", payload: user });
-    } catch {
+    } catch (error) {
+      console.error('Social login error:', error);
       dispatch({
         type: "LOGIN_ERROR",
         payload: `${provider.provider} ile giriş başarısız oldu.`,

@@ -56,6 +56,12 @@ export interface RegisterCredentials {
 
 export interface SocialAuthProvider {
   provider: "google" | "instagram";
+  userData?: {
+    id: string;
+    email: string;
+    name: string;
+    picture?: string;
+  };
 }
 
 export interface FollowRelationship {

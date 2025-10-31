@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useGoogleLogin } from '@react-oauth/google';
 import "./Login.css";
 
 interface LoginProps {
@@ -26,8 +27,45 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
   };
 
   const handleSocialLogin = async (provider: "google" | "instagram") => {
+    if (provider === "google") {
+      // Google OAuth will be handled by googleLogin hook
+      return;
+    }
     await socialLogin({ provider });
   };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      console.log('Google OAuth Success:', tokenResponse);
+      
+      try {
+        // Access token ile user info al
+        const userInfoResponse = await fetch(
+          `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+        );
+        const userInfo = await userInfoResponse.json();
+        
+        console.log('Google User Info:', userInfo);
+        
+        // AuthContext'e Google user bilgilerini gönder
+        await socialLogin({ 
+          provider: 'google',
+          userData: {
+            id: userInfo.id,
+            email: userInfo.email,
+            name: userInfo.name,
+            picture: userInfo.picture
+          }
+        });
+        
+      } catch (error) {
+        console.error('Google login error:', error);
+      }
+    },
+    onError: (error) => {
+      console.error('Google OAuth Error:', error);
+    },
+  });
 
   return (
     <div className="login-container">
@@ -89,7 +127,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
 
         <div className="social-login">
           <button
-            onClick={() => handleSocialLogin("google")}
+            onClick={() => googleLogin()}
             className="social-button google"
             disabled={state.isLoading}
           >

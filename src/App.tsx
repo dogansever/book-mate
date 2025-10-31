@@ -1,4 +1,5 @@
 import React from "react";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserBooksProvider } from "./contexts/UserBooksContext";
 import { BookSwapProvider } from "./contexts/BookSwapContext";
@@ -18,16 +19,26 @@ const AppContent: React.FC = () => {
 };
 
 function App() {
+  // Google OAuth Client ID - Bu production'da environment variable olmalı
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "test-client-id";
+  
+  // Development için uyarı
+  if (googleClientId === "test-client-id" || googleClientId === "your_google_client_id_here") {
+    console.warn("🚨 Google OAuth: Gerçek Client ID ayarlanmamış. GOOGLE_OAUTH_SETUP.md dosyasını kontrol edin.");
+  }
+
   return (
-    <AuthProvider>
-      <UserBooksProvider>
-        <BookSwapProvider>
-          <div className="App">
-            <AppContent />
-          </div>
-        </BookSwapProvider>
-      </UserBooksProvider>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <AuthProvider>
+        <UserBooksProvider>
+          <BookSwapProvider>
+            <div className="App">
+              <AppContent />
+            </div>
+          </BookSwapProvider>
+        </UserBooksProvider>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 
