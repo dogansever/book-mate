@@ -6,16 +6,19 @@ const middlewares = jsonServer.defaults({
   static: './build'
 });
 
-// CORS ayarları
+// CORS middleware - Render.com için (geliştirme aşaması)
 server.use((req, res, next) => {
+  // Development için tüm origin'lere izin ver
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
-  res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
+    return res.status(200).end();
   }
+  
+  next();
 });
 
 server.use(middlewares);
