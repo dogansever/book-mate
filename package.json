@@ -9,13 +9,15 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "api": "json-server --watch db.json --port 3001",
-    "dev:all": "concurrently \"npm run api\" \"npm run dev\""
+    "dev:all": "concurrently \"npm run api\" \"npm run dev\"",
+    "start": "node server.js"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
     "@react-oauth/google": "^0.12.2",
     "axios": "^1.13.1",
     "google-auth-library": "^10.5.0",
+    "json-server": "^0.17.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
