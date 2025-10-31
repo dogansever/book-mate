@@ -8,31 +8,78 @@
       "provider": "email",
       "profile": {
         "city": "İstanbul",
-        "coordinates": {
-          "latitude": 41.0082,
-          "longitude": 28.9784
-        },
+        "ageRange": "35-44",
         "favoriteGenres": [
-          "Roman",
           "Bilim Kurgu",
-          "Kişisel Gelişim"
+          "İş ve Ekonomi",
+          "Yemek",
+          "Roman"
         ],
         "favoriteAuthors": [
-          "Dan Brown",
-          "Stephen King",
-          "Paulo Coelho"
+          "yuval noah harari"
         ],
         "interests": [
-          "Okuma",
-          "Film",
-          "Teknoloji"
+          "Gönüllülük",
+          "Meditasyon",
+          "Yemek",
+          "Yazma",
+          "Sinema",
+          "okçülük"
         ],
-        "bio": "Kitap okumayı seven teknoloji meraklısı.",
-        "readingGoal": 30,
-        "isProfileComplete": true
+        "intellectualBio": "dfgdgfgfgfdgsdg sg sfdg sg fdg dhju. jrjtj ",
+        "socialConnections": [],
+        "isProfileComplete": true,
+        "gender": "male",
+        "academicInfo": {
+          "university": "Orta Doğu teknik",
+          "department": "Bilg Müh",
+          "graduationYear": 2005,
+          "degree": "bachelor",
+          "isVisible": true
+        },
+        "professionalInfo": {
+          "company": "Ykb",
+          "position": "Yazılım",
+          "industry": "Finans",
+          "workExperience": 20,
+          "salaryRange": "150k+",
+          "isVisible": true
+        },
+        "age": 42,
+        "culturalProfile": {
+          "isVisible": true,
+          "readingMotivation": [
+            "knowledge",
+            "thinking"
+          ],
+          "readingFrequency": "weekly",
+          "preferredReadingTime": "evening",
+          "readingEnvironment": "quiet"
+        },
+        "worldview": {
+          "isVisible": true,
+          "cosmology": "big-bang",
+          "philosophical": [
+            "scientific-naturalist"
+          ]
+        },
+        "valuesAndPhilosophy": {
+          "isVisible": true,
+          "coreValues": [
+            "freedom",
+            "balance",
+            "knowledge",
+            "justice",
+            "innovation"
+          ],
+          "lifePhilosophy": "bilgi güçtür",
+          "moralFramework": "deontological",
+          "politicalLean": "progressive"
+        }
       },
       "createdAt": "2024-01-01T00:00:00.000Z",
-      "lastLoginAt": "2025-10-31T00:00:00.000Z"
+      "lastLoginAt": "2025-10-31T00:00:00.000Z",
+      "updatedAt": "2025-10-31T19:38:06.491Z"
     },
     {
       "id": "user-2",
@@ -511,16 +558,141 @@
       "updatedAt": "2025-10-31T18:29:22.884Z",
       "isFavorite": false,
       "dateStarted": "2025-10-31T18:29:22.884Z"
+    },
+    {
+      "id": "ub-1761937286698-ykqvs6ov5",
+      "userId": "115928871880532961861",
+      "bookId": "5utkMbUcG1EC",
+      "title": "Gerard Ter Borch",
+      "authors": [
+        "K. Jr Wheelock Arthur",
+        "Arthur K. Wheelock (Jr.)",
+        "National Gallery of Art (U.S.) Staff",
+        "Gerard ter Borch",
+        "Alison McNeil Kettering",
+        "Detroit Institute of Arts Staff",
+        "National Gallery of Art (U.S.)",
+        "Arie Wallert",
+        "Detroit Institute of Arts",
+        "Marjorie E. Wieseman"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=5utkMbUcG1EC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+      "status": "want-to-read",
+      "dateAdded": "2025-10-31T19:01:26.698Z",
+      "updatedAt": "2025-10-31T19:01:26.698Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939010742-0ltcsgofh",
+      "userId": "115928871880532961861",
+      "bookId": "ooDJoAEACAAJ",
+      "title": "Hayvan Ciftligi",
+      "authors": [
+        "George Orwell"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=ooDJoAEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+      "status": "read",
+      "dateAdded": "2025-10-31T19:30:10.742Z",
+      "updatedAt": "2025-10-31T19:30:10.742Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939011292-q4ag9nr64",
+      "userId": "115928871880532961861",
+      "bookId": "Q0kPSgAACAAJ",
+      "title": "Ofli Hoca",
+      "authors": [
+        "Nihat Genç"
+      ],
+      "status": "currently-reading",
+      "dateAdded": "2025-10-31T19:30:11.292Z",
+      "updatedAt": "2025-10-31T19:30:11.292Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939011907-w5iugddd0",
+      "userId": "115928871880532961861",
+      "bookId": "jJ-MSQAACAAJ",
+      "title": "Kürk mantolu madonna",
+      "authors": [
+        "Sabahattin Ali"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=jJ-MSQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+      "status": "want-to-read",
+      "dateAdded": "2025-10-31T19:30:11.907Z",
+      "updatedAt": "2025-10-31T19:30:11.907Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939012454-lsx83k4cn",
+      "userId": "115928871880532961861",
+      "bookId": "fyVkAAAAMAAJ",
+      "title": "Şâir Nigâr Hanım",
+      "authors": [
+        "Nazan Bekiroğlu"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=fyVkAAAAMAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+      "status": "read",
+      "dateAdded": "2025-10-31T19:30:12.454Z",
+      "updatedAt": "2025-10-31T19:30:12.454Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939012997-yz8tkvdmw",
+      "userId": "115928871880532961861",
+      "bookId": "FocHogEACAAJ",
+      "title": "Gazete Fisiltilari",
+      "authors": [
+        "Sevim Ak"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=FocHogEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+      "status": "want-to-read",
+      "dateAdded": "2025-10-31T19:30:12.997Z",
+      "updatedAt": "2025-10-31T19:30:12.997Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939013546-2r1kv29rs",
+      "userId": "115928871880532961861",
+      "bookId": "ZypUnwEACAAJ",
+      "title": "Orkun Bilgesi",
+      "authors": [
+        "Yilmaz Gürbüz"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=ZypUnwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+      "status": "currently-reading",
+      "dateAdded": "2025-10-31T19:30:13.546Z",
+      "updatedAt": "2025-10-31T19:30:13.546Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939015011-hyfrms6yz",
+      "userId": "115928871880532961861",
+      "bookId": "-Yg3nwEACAAJ",
+      "title": "Bal Kaşığım",
+      "authors": [
+        "Murat Kaymaz"
+      ],
+      "status": "want-to-read",
+      "dateAdded": "2025-10-31T19:30:15.011Z",
+      "updatedAt": "2025-10-31T19:30:15.011Z",
+      "isFavorite": false
+    },
+    {
+      "id": "ub-1761939016206-2s8hf0rka",
+      "userId": "115928871880532961861",
+      "bookId": "re2ZPQAACAAJ",
+      "title": "Güçlük nerede?",
+      "authors": [
+        "Orhan Şaik Gökyay"
+      ],
+      "status": "want-to-read",
+      "dateAdded": "2025-10-31T19:30:16.206Z",
+      "updatedAt": "2025-10-31T19:30:16.206Z",
+      "isFavorite": false
     }
   ],
   "followRelationships": [
-    {
-      "id": "fr-1",
-      "followerId": "115928871880532961861",
-      "followingId": "user-2",
-      "createdAt": "2024-02-01T00:00:00.000Z",
-      "isActive": true
-    },
     {
       "id": "fr-2",
       "followerId": "user-2",
@@ -541,6 +713,13 @@
       "followingId": "115928871880532961861",
       "createdAt": "2024-02-12T00:00:00.000Z",
       "isActive": true
+    },
+    {
+      "id": "fr-1761937312224-rwjlbvupe",
+      "followerId": "115928871880532961861",
+      "followingId": "user-4",
+      "createdAt": "2025-10-31T19:01:52.224Z",
+      "isActive": true
     }
   ],
   "followRequests": [],
@@ -551,7 +730,8 @@
       "followingCount": 1,
       "mutualFollowsCount": 0,
       "totalBooksRead": 2,
-      "averageRating": 4.5
+      "averageRating": 4.5,
+      "id": "9616"
     },
     {
       "userId": "user-2",
@@ -559,7 +739,8 @@
       "followingCount": 1,
       "mutualFollowsCount": 0,
       "totalBooksRead": 1,
-      "averageRating": 5
+      "averageRating": 5,
+      "id": "6fa3"
     },
     {
       "userId": "user-3",
@@ -567,7 +748,8 @@
       "followingCount": 1,
       "mutualFollowsCount": 0,
       "totalBooksRead": 2,
-      "averageRating": 4.5
+      "averageRating": 4.5,
+      "id": "8baa"
     },
     {
       "userId": "user-4",
@@ -575,7 +757,8 @@
       "followingCount": 1,
       "mutualFollowsCount": 0,
       "totalBooksRead": 1,
-      "averageRating": 5
+      "averageRating": 5,
+      "id": "2e6e"
     }
   ],
   "posts": [
@@ -599,7 +782,7 @@
         "sanat_tarihi",
         "din"
       ],
-      "likesCount": 15,
+      "likesCount": 16,
       "commentsCount": 3,
       "sharesCount": 2,
       "isLiked": false,
@@ -649,13 +832,32 @@
         "mevlana",
         "modern_edebiyat"
       ],
-      "likesCount": 22,
+      "likesCount": 23,
       "commentsCount": 5,
       "sharesCount": 3,
       "isLiked": false,
       "isBookmarked": true,
       "createdAt": "2025-10-29T16:45:00.000Z",
       "updatedAt": "2025-10-29T16:45:00.000Z",
+      "visibility": "public"
+    },
+    {
+      "id": "post-1761937460963-cxkwz5zcv",
+      "userId": "115928871880532961861",
+      "type": "text",
+      "category": "thought",
+      "content": "test",
+      "images": [],
+      "tags": [
+        "tre"
+      ],
+      "likesCount": 0,
+      "commentsCount": 0,
+      "sharesCount": 0,
+      "isLiked": false,
+      "isBookmarked": false,
+      "createdAt": "2025-10-31T19:04:20.963Z",
+      "updatedAt": "2025-10-31T19:04:20.963Z",
       "visibility": "public"
     }
   ],
@@ -690,16 +892,28 @@
   ],
   "postLikes": [
     {
-      "id": "like-1",
-      "postId": "post-2",
-      "userId": "115928871880532961861",
-      "createdAt": "2025-10-30T10:20:00.000Z"
-    },
-    {
       "id": "like-2",
       "postId": "post-1",
       "userId": "user-3",
       "createdAt": "2025-10-30T14:45:00.000Z"
+    },
+    {
+      "id": "like-1761937518714-1clw7l56i",
+      "postId": "post-3",
+      "userId": "115928871880532961861",
+      "createdAt": "2025-10-31T19:05:18.714Z"
+    },
+    {
+      "id": "like-1761937524607-i1gdovje2",
+      "postId": "post-2",
+      "userId": "115928871880532961861",
+      "createdAt": "2025-10-31T19:05:24.607Z"
+    },
+    {
+      "id": "like-1761937538436-2zz8yi5pu",
+      "postId": "post-1",
+      "userId": "115928871880532961861",
+      "createdAt": "2025-10-31T19:05:38.436Z"
     }
   ],
   "meetups": [

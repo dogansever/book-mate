@@ -644,6 +644,110 @@ export class BookApiService {
       throw error;
     }
   }
+
+  /**
+   * Kullanıcı profilini getirir
+   */
+  static async getUserProfile(userId: string): Promise<User | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const user = await response.json();
+      
+      // Date stringlerini Date objelerine çevir
+      return {
+        ...user,
+        createdAt: new Date(user.createdAt),
+        updatedAt: user.updatedAt ? new Date(user.updatedAt) : undefined,
+        lastLoginAt: user.lastLoginAt ? new Date(user.lastLoginAt) : undefined
+      };
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Kullanıcı profilini günceller
+   */
+  static async updateUserProfile(userId: string, profileData: Partial<User>): Promise<User> {
+    try {
+      const updateData = {
+        ...profileData,
+        updatedAt: new Date().toISOString()
+      };
+
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const updatedUser = await response.json();
+      
+      // Date stringlerini Date objelerine çevir
+      return {
+        ...updatedUser,
+        createdAt: new Date(updatedUser.createdAt),
+        updatedAt: updatedUser.updatedAt ? new Date(updatedUser.updatedAt) : undefined,
+        lastLoginAt: updatedUser.lastLoginAt ? new Date(updatedUser.lastLoginAt) : undefined
+      };
+    } catch (error) {
+      console.error('Failed to update user profile:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Yeni kullanıcı oluşturur
+   */
+  static async createUser(userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'lastLoginAt'>): Promise<User> {
+    try {
+      const newUserData = {
+        ...userData,
+        id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
+      };
+
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUserData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const createdUser = await response.json();
+      
+      // Date stringlerini Date objelerine çevir
+      return {
+        ...createdUser,
+        createdAt: new Date(createdUser.createdAt),
+        updatedAt: createdUser.updatedAt ? new Date(createdUser.updatedAt) : undefined,
+        lastLoginAt: createdUser.lastLoginAt ? new Date(createdUser.lastLoginAt) : undefined
+      };
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      throw error;
+    }
+  }
 }
 
 export default BookApiService;

@@ -7,6 +7,7 @@ import {
   SocialAuthProvider,
   UserProfile,
 } from "../types/user";
+import BookApiService from "../services/bookApiService";
 
 interface AuthContextType {
   state: AuthState;
@@ -110,9 +111,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     const storedUser = getUserFromStorage();
     if (storedUser && !state.user) {
-      // localStorage'da user var ama state'te yok, tekrar yükle
-      dispatch({ type: "LOGIN_SUCCESS", payload: storedUser });
-      console.log('👤 User restored from localStorage:', storedUser.displayName);
+      // localStorage'da user var ama state'te yok, API'den güncel profili yükle
+      console.log('👤 User restored from localStorage, loading fresh profile from API:', storedUser.displayName);
+      loadUserProfile(storedUser.id);
     }
   }, [state.user]);
 
@@ -208,13 +209,56 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const updateProfile = async (profile: UserProfile) => {
+  const loadUserProfile = async (userId: string) => {
     try {
-      // Simulated API call - replace with actual profile update
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log('🔄 API\'den kullanıcı profili yükleniyor:', userId);
+      
+      const userProfile = await BookApiService.getUserProfile(userId);
+      if (userProfile) {
+        console.log('✅ API\'den profil yüklendi:', userProfile);
+        
+        // API'den gelen profili state'e yükle
+        dispatch({ type: "LOGIN_SUCCESS", payload: userProfile });
+        
+        // localStorage'ı da güncelle
+        localStorage.setItem("bookMateUser", JSON.stringify(userProfile));
+      } else {
+        console.warn('⚠️ API\'de profil bulunamadı, localStorage versiyonu kullanılıyor');
+        // API'de profil yoksa localStorage'dakini kullan
+        const storedUser = getUserFromStorage();
+        if (storedUser) {
+          dispatch({ type: "LOGIN_SUCCESS", payload: storedUser });
+        }
+      }
+    } catch (error) {
+      console.error('❌ API profil yükleme hatası:', error);
+      // Hata durumunda localStorage'dakini kullan
+      const storedUser = getUserFromStorage();
+      if (storedUser) {
+        console.log('🔄 Hata nedeniyle localStorage verisi kullanılıyor');
+        dispatch({ type: "LOGIN_SUCCESS", payload: storedUser });
+      }
+    }
+  };
 
+  const updateProfile = async (profile: UserProfile) => {
+    if (!state.user) {
+      throw new Error("Kullanıcı oturumu bulunamadı.");
+    }
+
+    try {
+      console.log('🔄 API ile profil güncelleniyor:', profile);
+      
+      // API ile profili güncelle
+      const updatedUser = await BookApiService.updateUserProfile(state.user.id, {
+        profile: profile
+      });
+
+      console.log('✅ API profil güncellemesi başarılı:', updatedUser);
+      
       dispatch({ type: "UPDATE_PROFILE_SUCCESS", payload: profile });
-    } catch {
+    } catch (error) {
+      console.error('❌ Profil güncelleme hatası:', error);
       dispatch({
         type: "LOGIN_ERROR",
         payload: "Profil güncellenirken bir hata oluştu.",

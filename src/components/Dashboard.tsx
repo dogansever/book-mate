@@ -31,6 +31,9 @@ const Dashboard: React.FC = () => {
     return null;
   }
 
+  // Debug: Profil bilgilerini kontrol et
+  console.log('🔍 Dashboard - Current user profile:', state.user.profile);
+
   // Profil kurulumu gerekiyor mu kontrol et
   const needsProfileSetup =
     !state.user.profile?.isProfileComplete || showProfileSetup;
@@ -350,8 +353,223 @@ const Dashboard: React.FC = () => {
                         🎂 {state.user.profile.ageRange} yaş
                       </span>
                     )}
+                    {state.user.profile.age && (
+                      <span className="profile-item">
+                        🎯 {state.user.profile.age} yaşında
+                      </span>
+                    )}
+                    {state.user.profile.gender && state.user.profile.gender !== 'prefer-not-to-say' && (
+                      <span className="profile-item">
+                        {state.user.profile.gender === 'male' ? '👨' : state.user.profile.gender === 'female' ? '👩' : '👤'} {
+                          state.user.profile.gender === 'male' ? 'Erkek' : 
+                          state.user.profile.gender === 'female' ? 'Kadın' : 'Diğer'
+                        }
+                      </span>
+                    )}
                   </div>
                 </div>
+
+                {/* Akademik Bilgiler */}
+                {state.user.profile.academicInfo && state.user.profile.academicInfo.isVisible && (
+                  <div className="profile-section">
+                    <h4>🎓 Akademik Bilgiler</h4>
+                    <div className="profile-details">
+                      {state.user.profile.academicInfo.university && (
+                        <span className="profile-item">
+                          🏛️ {state.user.profile.academicInfo.university}
+                        </span>
+                      )}
+                      {state.user.profile.academicInfo.department && (
+                        <span className="profile-item">
+                          📖 {state.user.profile.academicInfo.department}
+                        </span>
+                      )}
+                      {state.user.profile.academicInfo.degree && (
+                        <span className="profile-item">
+                          🎯 {
+                            state.user.profile.academicInfo.degree === 'bachelor' ? 'Lisans' :
+                            state.user.profile.academicInfo.degree === 'master' ? 'Yüksek Lisans' :
+                            state.user.profile.academicInfo.degree === 'phd' ? 'Doktora' : 'Diğer'
+                          }
+                        </span>
+                      )}
+                      {state.user.profile.academicInfo.graduationYear && (
+                        <span className="profile-item">
+                          📅 {state.user.profile.academicInfo.graduationYear} mezunu
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Profesyonel Bilgiler */}
+                {state.user.profile.professionalInfo && state.user.profile.professionalInfo.isVisible && (
+                  <div className="profile-section">
+                    <h4>💼 Profesyonel Bilgiler</h4>
+                    <div className="profile-details">
+                      {state.user.profile.professionalInfo.company && (
+                        <span className="profile-item">
+                          🏢 {state.user.profile.professionalInfo.company}
+                        </span>
+                      )}
+                      {state.user.profile.professionalInfo.position && (
+                        <span className="profile-item">
+                          👔 {state.user.profile.professionalInfo.position}
+                        </span>
+                      )}
+                      {state.user.profile.professionalInfo.industry && (
+                        <span className="profile-item">
+                          🏭 {state.user.profile.professionalInfo.industry}
+                        </span>
+                      )}
+                      {state.user.profile.professionalInfo.workExperience && (
+                        <span className="profile-item">
+                          ⏱️ {state.user.profile.professionalInfo.workExperience} yıl deneyim
+                        </span>
+                      )}
+                      {state.user.profile.professionalInfo.salaryRange && (
+                        <span className="profile-item">
+                          💰 {
+                            state.user.profile.professionalInfo.salaryRange === '0-30k' ? '0-30.000 ₺' :
+                            state.user.profile.professionalInfo.salaryRange === '30k-60k' ? '30.000-60.000 ₺' :
+                            state.user.profile.professionalInfo.salaryRange === '60k-100k' ? '60.000-100.000 ₺' :
+                            state.user.profile.professionalInfo.salaryRange === '100k-150k' ? '100.000-150.000 ₺' :
+                            state.user.profile.professionalInfo.salaryRange === '150k+' ? '150.000+ ₺' : ''
+                          }
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Kültürel Profil */}
+                {state.user.profile.culturalProfile && state.user.profile.culturalProfile.isVisible && (
+                  <div className="profile-section">
+                    <h4>📖 Okuma Kültürü</h4>
+                    <div className="profile-details">
+                      {state.user.profile.culturalProfile.readingMotivation && state.user.profile.culturalProfile.readingMotivation.length > 0 && (
+                        <div className="profile-subsection">
+                          <h5>Okuma Motivasyonu:</h5>
+                          <div className="profile-tags">
+                            {state.user.profile.culturalProfile.readingMotivation.slice(0, 3).map((motivation) => (
+                              <span key={motivation} className="profile-tag small">
+                                {
+                                  motivation === 'knowledge' ? '🧠 Bilgi' :
+                                  motivation === 'thinking' ? '💭 Düşünme' :
+                                  motivation === 'entertainment' ? '🎭 Eğlence' :
+                                  motivation === 'escape' ? '🌙 Kaçış' :
+                                  motivation === 'emotional-growth' ? '💖 Duygusal Gelişim' :
+                                  motivation === 'social-connection' ? '🤝 Sosyal Bağ' : motivation
+                                }
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {state.user.profile.culturalProfile.readingFrequency && (
+                        <span className="profile-item">
+                          📅 {
+                            state.user.profile.culturalProfile.readingFrequency === 'daily' ? 'Günlük okur' :
+                            state.user.profile.culturalProfile.readingFrequency === 'weekly' ? 'Haftalık okur' :
+                            state.user.profile.culturalProfile.readingFrequency === 'monthly' ? 'Aylık okur' :
+                            state.user.profile.culturalProfile.readingFrequency === 'occasionally' ? 'Ara sıra okur' : ''
+                          }
+                        </span>
+                      )}
+                      {state.user.profile.culturalProfile.preferredReadingTime && (
+                        <span className="profile-item">
+                          🕐 {
+                            state.user.profile.culturalProfile.preferredReadingTime === 'morning' ? 'Sabah okumayı sever' :
+                            state.user.profile.culturalProfile.preferredReadingTime === 'afternoon' ? 'Öğleden sonra okur' :
+                            state.user.profile.culturalProfile.preferredReadingTime === 'evening' ? 'Akşam okur' :
+                            state.user.profile.culturalProfile.preferredReadingTime === 'night' ? 'Gece okur' :
+                            state.user.profile.culturalProfile.preferredReadingTime === 'anytime' ? 'Her zaman okur' : ''
+                          }
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Dünya Görüşü */}
+                {state.user.profile.worldview && state.user.profile.worldview.isVisible && (
+                  <div className="profile-section">
+                    <h4>🌌 Dünya Görüşü</h4>
+                    <div className="profile-details">
+                      {state.user.profile.worldview.cosmology && (
+                        <span className="profile-item">
+                          🌍 {
+                            state.user.profile.worldview.cosmology === 'big-bang' ? 'Bilimsel Model' :
+                            state.user.profile.worldview.cosmology === 'creation' ? 'Yaratılış' :
+                            state.user.profile.worldview.cosmology === 'agnostic' ? 'Agnostik' :
+                            state.user.profile.worldview.cosmology === 'other' ? 'Diğer' : ''
+                          }
+                        </span>
+                      )}
+                      {state.user.profile.worldview.philosophical && state.user.profile.worldview.philosophical.length > 0 && (
+                        <div className="profile-subsection">
+                          <h5>Felsefi Yaklaşım:</h5>
+                          <div className="profile-tags">
+                            {state.user.profile.worldview.philosophical.slice(0, 3).map((phil) => (
+                              <span key={phil} className="profile-tag small">
+                                {
+                                  phil === 'scientific-naturalist' ? '🔬 Bilimsel' :
+                                  phil === 'humanist' ? '🌟 Hümanist' :
+                                  phil === 'spiritual' ? '🙏 Spiritüel' :
+                                  phil === 'religious' ? '⛪ Dindar' :
+                                  phil === 'existentialist' ? '🤔 Varoluşçu' :
+                                  phil === 'pragmatist' ? '⚖️ Pragmatist' : phil
+                                }
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Değerler */}
+                {state.user.profile.valuesAndPhilosophy && state.user.profile.valuesAndPhilosophy.isVisible && (
+                  <div className="profile-section">
+                    <h4>💎 Değerler ve Felsefe</h4>
+                    <div className="profile-details">
+                      {state.user.profile.valuesAndPhilosophy.coreValues && state.user.profile.valuesAndPhilosophy.coreValues.length > 0 && (
+                        <div className="profile-subsection">
+                          <h5>Temel Değerler:</h5>
+                          <div className="profile-tags">
+                            {state.user.profile.valuesAndPhilosophy.coreValues.slice(0, 5).map((value) => (
+                              <span key={value} className="profile-tag small">
+                                {
+                                  value === 'freedom' ? '🕊️ Özgürlük' :
+                                  value === 'progress' ? '📈 İlerleme' :
+                                  value === 'balance' ? '⚖️ Denge' :
+                                  value === 'simplicity' ? '🎋 Sadelik' :
+                                  value === 'knowledge' ? '📚 Bilgi' :
+                                  value === 'peace' ? '☮️ Huzur' :
+                                  value === 'justice' ? '⚡ Adalet' :
+                                  value === 'creativity' ? '🎨 Yaratıcılık' :
+                                  value === 'family' ? '👨‍👩‍👧‍👦 Aile' :
+                                  value === 'success' ? '🏆 Başarı' :
+                                  value === 'tradition' ? '🏛️ Gelenek' :
+                                  value === 'innovation' ? '💡 Yenilik' :
+                                  value === 'community' ? '🌍 Toplum' :
+                                  value === 'independence' ? '🦅 Bağımsızlık' :
+                                  value === 'compassion' ? '❤️ Merhamet' : value
+                                }
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {state.user.profile.valuesAndPhilosophy.lifePhilosophy && (
+                        <div className="profile-quote">
+                          💭 "{state.user.profile.valuesAndPhilosophy.lifePhilosophy}"
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {state.user.profile.favoriteGenres.length > 0 && (
                   <div className="profile-section">
