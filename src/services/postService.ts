@@ -1,501 +1,414 @@
 import { 
   Post, 
   PostComment, 
-  PostLike, 
   CreatePostData, 
-  UpdatePostData, 
   PostFeedOptions, 
   CreateCommentData, 
-  PostStats, 
-  PostCategory,
-  PostImage,
   User
 } from '../types/post';
 
-// Mock veriler
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    username: 'ahmet_okur',
-    fullName: 'Ahmet Okur',
-    profileImage: 'https://via.placeholder.com/150/4CAF50/FFFFFF?text=AO',
-    city: 'İstanbul',
-    followersCount: 342,
-    followingCount: 156
-  },
-  {
-    id: '2',
-    username: 'zeynep_felsefe',
-    fullName: 'Zeynep Aksoy',
-    profileImage: 'https://via.placeholder.com/150/9C27B0/FFFFFF?text=ZA',
-    city: 'Ankara',
-    followersCount: 567,
-    followingCount: 201
-  },
-  {
-    id: '3',
-    username: 'mustafa_kultur',
-    fullName: 'Mustafa Kaya',
-    profileImage: 'https://via.placeholder.com/150/FF5722/FFFFFF?text=MK',
-    city: 'İzmir',
-    followersCount: 234,
-    followingCount: 89
-  },
-  {
-    id: '4',
-    username: 'elif_dusunce',
-    fullName: 'Elif Yıldız',
-    profileImage: 'https://via.placeholder.com/150/2196F3/FFFFFF?text=EY',
-    city: 'Bursa',
-    followersCount: 445,
-    followingCount: 167
-  }
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
-const MOCK_POSTS: Post[] = [
-  {
-    id: '1',
-    userId: '1',
-    user: MOCK_USERS[0],
-    type: 'text-image',
-    category: 'book',
-    content: 'Bugün "Suç ve Ceza" kitabını bitirdim. Dostoyevski\'nin insan psikolojisini işleme biçimi gerçekten büyüleyici. Raskolnikov karakterinin iç çelişkileri modern insanın ruhsal durumunu da yansıtıyor gibi. Özellikle suçluluk duygusunun nasıl bireyi içten içe kemirdiğini gözler önüne seriyor.',
-    images: [
-      {
-        id: 'img1',
-        url: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400',
-        alt: 'Suç ve Ceza kitabı',
-        caption: 'Dostoyevski - Suç ve Ceza'
-      }
-    ],
-    tags: ['dostoyevski', 'klasik', 'psikoloji', 'rus_edebiyatı'],
-    likesCount: 24,
-    commentsCount: 8,
-    sharesCount: 3,
-    isLiked: false,
-    isBookmarked: true,
-    createdAt: new Date('2025-10-23T10:30:00'),
-    updatedAt: new Date('2025-10-23T10:30:00'),
-    visibility: 'public'
-  },
-  {
-    id: '2',
-    userId: '2',
-    user: MOCK_USERS[1],
-    type: 'text',
-    category: 'philosophy',
-    content: 'Nietzsche\'nin "Böyle Buyurdu Zerdüşt" eserinde geçen "üst-insan" kavramı üzerine düşünüyorum. Acaba modern toplumda üst-insan olmak ne demek? Kendi değerlerini yaratmak, toplumsal normları sorgulamak... Bu çok cesaret gerektiren bir duruş.',
-    tags: ['nietzsche', 'üst_insan', 'değerler', 'modern_felsefe'],
-    likesCount: 31,
-    commentsCount: 12,
-    sharesCount: 7,
-    isLiked: true,
-    isBookmarked: false,
-    createdAt: new Date('2025-10-23T08:15:00'),
-    updatedAt: new Date('2025-10-23T08:15:00'),
-    visibility: 'public'
-  },
-  {
-    id: '3',
-    userId: '3',
-    user: MOCK_USERS[2],
-    type: 'text-image',
-    category: 'culture',
-    content: 'İstanbul\'da gezdiğim bu eski mahallede rastladığım kahvehane. Duvarlardaki eski fotoğraflar, masa oyunları, hikaye anlatıcılığı... Dijital çağda kaybolmaya yüz tutmuş kültürel değerlerimiz. Bu mekanların korunması gerekmiyor mu?',
-    images: [
-      {
-        id: 'img2',
-        url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400',
-        alt: 'Eski kahvehane',
-        caption: 'Tarihi İstanbul kahvehanesi'
-      }
-    ],
-    tags: ['kültür', 'gelenek', 'istanbul', 'kahvehane'],
-    likesCount: 18,
-    commentsCount: 5,
-    sharesCount: 2,
-    isLiked: false,
-    isBookmarked: true,
-    createdAt: new Date('2025-10-22T16:45:00'),
-    updatedAt: new Date('2025-10-22T16:45:00'),
-    visibility: 'public'
-  },
-  {
-    id: '4',
-    userId: '4',
-    user: MOCK_USERS[3],
-    type: 'text',
-    category: 'thought',
-    content: 'Bazen düşünüyorum da, teknoloji bizi birbirimize yakınlaştırdı mı yoksa uzaklaştırdı mı? Sosyal medya sayesinde dünya çapında insanlarla iletişim kurabiliyoruz ama yanımızdaki insanla göz teması kurmakta zorlanıyoruz. Paradoks değil mi?',
-    tags: ['teknoloji', 'sosyal_medya', 'insan_ilişkileri', 'modern_hayat'],
-    likesCount: 45,
-    commentsCount: 19,
-    sharesCount: 11,
-    isLiked: true,
-    isBookmarked: false,
-    createdAt: new Date('2025-10-22T14:20:00'),
-    updatedAt: new Date('2025-10-22T14:20:00'),
-    visibility: 'public'
-  },
-  {
-    id: '5',
-    userId: '1',
-    user: MOCK_USERS[0],
-    type: 'text',
-    category: 'book',
-    content: 'Kitap okuma alışkanlığı konusunda bir gözlem: Dijital kitaplar pratik olsa da, fiziksel kitapların o sayfa kokusu, dokunma hissi bambaşka. Sizin tercihiniz nedir? E-kitap mı, basılı kitap mı?',
-    tags: ['kitap', 'okuma', 'dijital', 'basılı_kitap'],
-    likesCount: 27,
-    commentsCount: 15,
-    sharesCount: 4,
-    isLiked: false,
-    isBookmarked: false,
-    createdAt: new Date('2025-10-21T12:10:00'),
-    updatedAt: new Date('2025-10-21T12:10:00'),
-    visibility: 'public'
-  }
-];
+interface ApiPost extends Omit<Post, 'user' | 'createdAt' | 'updatedAt'> {
+  createdAt: string;
+  updatedAt: string;
+}
 
-const MOCK_COMMENTS: PostComment[] = [
-  {
-    id: '1',
-    postId: '1',
-    userId: '2',
-    user: MOCK_USERS[1],
-    content: 'Dostoyevski\'nin karakterleri gerçekten çok derinlikli. Ben de Raskolnikov\'un iç dünyasına hayran kalmıştım.',
-    likesCount: 3,
-    isLiked: false,
-    createdAt: new Date('2025-10-23T11:00:00')
-  },
-  {
-    id: '2',
-    postId: '2',
-    userId: '3',
-    user: MOCK_USERS[2],
-    content: 'Nietzsche\'nin üst-insan kavramı çok tartışmalı. Aslında kendi değerlerini yaratmak her insanın hakkı olmalı.',
-    likesCount: 5,
-    isLiked: true,
-    createdAt: new Date('2025-10-23T09:30:00')
+interface ApiComment extends Omit<PostComment, 'user' | 'createdAt'> {
+  createdAt: string;
+}
+
+// API'den kullanıcı bilgisini getir
+async function getUser(userId: string): Promise<User | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+    if (!response.ok) return null;
+    
+    const userData = await response.json();
+    return {
+      id: userData.id,
+      username: userData.displayName?.toLowerCase().replace(' ', '_') || 'user',
+      fullName: userData.displayName,
+      profileImage: userData.avatar,
+      city: userData.profile?.city || '',
+      followersCount: 0, // Bu bilgi userStats'ten alınabilir
+      followingCount: 0  // Bu bilgi userStats'ten alınabilir
+    };
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return null;
   }
-];
+}
+
+// API Post'unu UI Post'una dönüştür
+async function mapApiPostToPost(apiPost: ApiPost): Promise<Post> {
+  const user = await getUser(apiPost.userId);
+  
+  return {
+    ...apiPost,
+    user: user || {
+      id: apiPost.userId,
+      username: 'unknown_user',
+      fullName: 'Bilinmeyen Kullanıcı',
+      profileImage: '👤',
+      city: '',
+      followersCount: 0,
+      followingCount: 0
+    },
+    createdAt: new Date(apiPost.createdAt),
+    updatedAt: new Date(apiPost.updatedAt)
+  };
+}
 
 export class PostService {
-  private static posts: Post[] = [...MOCK_POSTS];
-  private static comments: PostComment[] = [...MOCK_COMMENTS];
-  private static likes: PostLike[] = [];
-
-  // Post CRUD işlemleri
+  
+  // Tüm postları getir
   static async getAllPosts(options: PostFeedOptions = {}): Promise<{ posts: Post[]; total: number }> {
-    await this.delay(300); // API simülasyonu
-
-    let filteredPosts = [...this.posts];
-
-    // Filtreleme
-    if (options.filters) {
-      const { category, userId, tags, dateFrom, dateTo, hasImages } = options.filters;
-
-      if (category) {
-        filteredPosts = filteredPosts.filter(post => post.category === category);
-      }
-
-      if (userId) {
-        filteredPosts = filteredPosts.filter(post => post.userId === userId);
-      }
-
-      if (tags && tags.length > 0) {
-        filteredPosts = filteredPosts.filter(post => 
-          post.tags?.some(tag => tags.includes(tag))
-        );
-      }
-
-      if (dateFrom) {
-        filteredPosts = filteredPosts.filter(post => post.createdAt >= dateFrom);
-      }
-
-      if (dateTo) {
-        filteredPosts = filteredPosts.filter(post => post.createdAt <= dateTo);
-      }
-
-      if (hasImages !== undefined) {
-        filteredPosts = filteredPosts.filter(post => 
-          hasImages ? (post.images && post.images.length > 0) : !post.images || post.images.length === 0
-        );
-      }
-    }
-
-    // Sıralama
-    if (options.sortOptions) {
-      const { sortBy, sortOrder } = options.sortOptions;
+    try {
+      let url = `${API_BASE_URL}/posts`;
+      const params = new URLSearchParams();
       
-      filteredPosts.sort((a, b) => {
-        let comparison = 0;
+      // Pagination
+      if (options.limit) params.append('_limit', options.limit.toString());
+      if (options.offset) {
+        const page = Math.floor(options.offset / (options.limit || 10)) + 1;
+        params.append('_page', page.toString());
+      }
+      
+      // Sorting
+      if (options.sortOptions) {
+        params.append('_sort', options.sortOptions.sortBy);
+        params.append('_order', options.sortOptions.sortOrder || 'desc');
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+      
+      const apiPosts: ApiPost[] = await response.json();
+      const posts = await Promise.all(apiPosts.map(mapApiPostToPost));
+      
+      // Filtreleme (client-side, daha iyi performans için server-side yapılabilir)
+      let filteredPosts = posts;
+      
+      if (options.filters) {
+        const { category, userId, tags } = options.filters;
         
-        switch (sortBy) {
-          case 'createdAt':
-            comparison = a.createdAt.getTime() - b.createdAt.getTime();
-            break;
-          case 'likesCount':
-            comparison = a.likesCount - b.likesCount;
-            break;
-          case 'commentsCount':
-            comparison = a.commentsCount - b.commentsCount;
-            break;
-          case 'popularity': {
-            const aPopularity = a.likesCount + a.commentsCount + a.sharesCount;
-            const bPopularity = b.likesCount + b.commentsCount + b.sharesCount;
-            comparison = aPopularity - bPopularity;
-            break;
-          }
+        if (category) {
+          filteredPosts = filteredPosts.filter(post => post.category === category);
         }
-
-        return sortOrder === 'desc' ? -comparison : comparison;
-      });
-    }
-
-    // Pagination
-    const offset = options.offset || 0;
-    const limit = options.limit || 10;
-    const paginatedPosts = filteredPosts.slice(offset, offset + limit);
-
-    return {
-      posts: paginatedPosts,
-      total: filteredPosts.length
-    };
-  }
-
-  static async getPostById(id: string): Promise<Post | null> {
-    await this.delay(200);
-    return this.posts.find(post => post.id === id) || null;
-  }
-
-  static async createPost(data: CreatePostData, userId: string): Promise<Post> {
-    await this.delay(500);
-
-    const user = MOCK_USERS.find(u => u.id === userId) || MOCK_USERS[0];
-    
-    // Simulate image upload
-    const images: PostImage[] = data.images?.map((file, index) => ({
-      id: `img_${Date.now()}_${index}`,
-      url: URL.createObjectURL(file),
-      alt: file.name,
-      caption: `Uploaded image ${index + 1}`
-    })) || [];
-
-    const newPost: Post = {
-      id: Date.now().toString(),
-      userId,
-      user,
-      type: data.type,
-      category: data.category,
-      content: data.content,
-      images: images.length > 0 ? images : undefined,
-      tags: data.tags,
-      likesCount: 0,
-      commentsCount: 0,
-      sharesCount: 0,
-      isLiked: false,
-      isBookmarked: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      visibility: data.visibility || 'public'
-    };
-
-    this.posts.unshift(newPost);
-    return newPost;
-  }
-
-  static async updatePost(id: string, data: UpdatePostData): Promise<Post | null> {
-    await this.delay(300);
-
-    const postIndex = this.posts.findIndex(post => post.id === id);
-    if (postIndex === -1) return null;
-
-    const updatedPost = {
-      ...this.posts[postIndex],
-      ...data,
-      updatedAt: new Date()
-    };
-
-    this.posts[postIndex] = updatedPost;
-    return updatedPost;
-  }
-
-  static async deletePost(id: string): Promise<boolean> {
-    await this.delay(200);
-
-    const postIndex = this.posts.findIndex(post => post.id === id);
-    if (postIndex === -1) return false;
-
-    this.posts.splice(postIndex, 1);
-    
-    // İlgili yorumları da sil
-    this.comments = this.comments.filter(comment => comment.postId !== id);
-    
-    return true;
-  }
-
-  // Like işlemleri
-  static async toggleLike(postId: string, userId: string): Promise<{ isLiked: boolean; likesCount: number }> {
-    await this.delay(200);
-
-    const post = this.posts.find(p => p.id === postId);
-    if (!post) throw new Error('Post not found');
-
-    const existingLike = this.likes.find(like => like.postId === postId && like.userId === userId);
-
-    if (existingLike) {
-      // Unlike
-      this.likes = this.likes.filter(like => like !== existingLike);
-      post.likesCount--;
-      post.isLiked = false;
-    } else {
-      // Like
-      const user = MOCK_USERS.find(u => u.id === userId) || MOCK_USERS[0];
-      const newLike: PostLike = {
-        id: Date.now().toString(),
-        postId,
-        userId,
-        user,
-        createdAt: new Date()
+        
+        if (userId) {
+          filteredPosts = filteredPosts.filter(post => post.userId === userId);
+        }
+        
+        if (tags && tags.length > 0) {
+          filteredPosts = filteredPosts.filter(post => 
+            post.tags?.some(tag => tags.includes(tag))
+          );
+        }
+      }
+      
+      return {
+        posts: filteredPosts,
+        total: filteredPosts.length
       };
-      this.likes.push(newLike);
-      post.likesCount++;
-      post.isLiked = true;
+      
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      return { posts: [], total: 0 };
     }
-
-    return {
-      isLiked: post.isLiked,
-      likesCount: post.likesCount
-    };
   }
 
-  // Comment işlemleri
-  static async getComments(postId: string): Promise<PostComment[]> {
-    await this.delay(200);
-    return this.comments.filter(comment => comment.postId === postId);
+  // Belirli bir postu getir
+  static async getPostById(postId: string): Promise<Post | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
+      if (!response.ok) return null;
+      
+      const apiPost: ApiPost = await response.json();
+      return await mapApiPostToPost(apiPost);
+      
+    } catch (error) {
+      console.error('Error fetching post:', error);
+      return null;
+    }
   }
 
-  static async createComment(postId: string, userId: string, data: CreateCommentData): Promise<PostComment> {
-    await this.delay(300);
+  // Yeni post oluştur
+  static async createPost(postData: CreatePostData, userId: string): Promise<Post | null> {
+    try {
+      const newPost = {
+        id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        userId: userId,
+        type: postData.type,
+        category: postData.category,
+        content: postData.content,
+        images: postData.images || [],
+        tags: postData.tags || [],
+        likesCount: 0,
+        commentsCount: 0,
+        sharesCount: 0,
+        isLiked: false,
+        isBookmarked: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        visibility: postData.visibility || 'public'
+      };
 
-    const post = this.posts.find(p => p.id === postId);
-    if (!post) throw new Error('Post not found');
-
-    const user = MOCK_USERS.find(u => u.id === userId) || MOCK_USERS[0];
-
-    const newComment: PostComment = {
-      id: Date.now().toString(),
-      postId,
-      userId,
-      user,
-      content: data.content,
-      likesCount: 0,
-      isLiked: false,
-      createdAt: new Date(),
-      parentCommentId: data.parentCommentId
-    };
-
-    this.comments.push(newComment);
-    post.commentsCount++;
-
-    return newComment;
-  }
-
-  // İstatistikler
-  static async getPostStats(userId?: string): Promise<PostStats> {
-    await this.delay(200);
-
-    const userPosts = userId ? this.posts.filter(post => post.userId === userId) : this.posts;
-
-    const totalLikes = userPosts.reduce((sum, post) => sum + post.likesCount, 0);
-    const totalComments = userPosts.reduce((sum, post) => sum + post.commentsCount, 0);
-    const totalShares = userPosts.reduce((sum, post) => sum + post.sharesCount, 0);
-
-    const categoryBreakdown = userPosts.reduce((acc, post) => {
-      acc[post.category] = (acc[post.category] || 0) + 1;
-      return acc;
-    }, {} as Record<PostCategory, number>);
-
-    // En popüler taglar
-    const tagCounts = userPosts.reduce((acc, post) => {
-      post.tags?.forEach(tag => {
-        acc[tag] = (acc[tag] || 0) + 1;
+      const response = await fetch(`${API_BASE_URL}/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPost)
       });
-      return acc;
-    }, {} as Record<string, number>);
 
-    const topTags = Object.entries(tagCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([tag, count]) => ({ tag, count }));
+      if (!response.ok) {
+        throw new Error('Failed to create post');
+      }
 
-    return {
-      totalPosts: userPosts.length,
-      totalLikes,
-      totalComments,
-      totalShares,
-      categoryBreakdown,
-      topTags
-    };
+      const createdPost: ApiPost = await response.json();
+      return await mapApiPostToPost(createdPost);
+      
+    } catch (error) {
+      console.error('Error creating post:', error);
+      return null;
+    }
   }
 
-  // Bookmark işlemleri
-  static async toggleBookmark(postId: string): Promise<boolean> {
-    await this.delay(200);
-
-    const post = this.posts.find(p => p.id === postId);
-    if (!post) throw new Error('Post not found');
-
-    post.isBookmarked = !post.isBookmarked;
-    return post.isBookmarked;
+  // Post beğen/beğenmekten vazgeç
+  static async toggleLike(postId: string, userId: string): Promise<{ success: boolean; isLiked: boolean; likesCount: number }> {
+    try {
+      // Mevcut beğeniyi kontrol et
+      const likesResponse = await fetch(`${API_BASE_URL}/postLikes?postId=${postId}&userId=${userId}`);
+      const existingLikes = await likesResponse.json();
+      
+      if (existingLikes.length > 0) {
+        // Beğeniyi kaldır
+        const deleteResponse = await fetch(`${API_BASE_URL}/postLikes/${existingLikes[0].id}`, {
+          method: 'DELETE'
+        });
+        
+        if (deleteResponse.ok) {
+          // Post'un likesCount'unu güncelle
+          const post = await this.getPostById(postId);
+          if (post) {
+            await fetch(`${API_BASE_URL}/posts/${postId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                likesCount: Math.max(0, post.likesCount - 1)
+              })
+            });
+          }
+          
+          return { success: true, isLiked: false, likesCount: post ? post.likesCount - 1 : 0 };
+        }
+      } else {
+        // Beğeni ekle
+        const newLike = {
+          id: `like-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          postId,
+          userId,
+          createdAt: new Date().toISOString()
+        };
+        
+        const createResponse = await fetch(`${API_BASE_URL}/postLikes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newLike)
+        });
+        
+        if (createResponse.ok) {
+          // Post'un likesCount'unu güncelle
+          const post = await this.getPostById(postId);
+          if (post) {
+            await fetch(`${API_BASE_URL}/posts/${postId}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                likesCount: post.likesCount + 1
+              })
+            });
+          }
+          
+          return { success: true, isLiked: true, likesCount: post ? post.likesCount + 1 : 1 };
+        }
+      }
+      
+      return { success: false, isLiked: false, likesCount: 0 };
+      
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      return { success: false, isLiked: false, likesCount: 0 };
+    }
   }
 
-  // Trend taglar
-  static async getTrendingTags(limit: number = 10): Promise<Array<{ tag: string; count: number }>> {
-    await this.delay(200);
+  // Post yorumlarını getir
+  static async getPostComments(postId: string): Promise<PostComment[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/postComments?postId=${postId}`);
+      if (!response.ok) return [];
+      
+      const apiComments: ApiComment[] = await response.json();
+      
+      const comments = await Promise.all(
+        apiComments.map(async (comment) => {
+          const user = await getUser(comment.userId);
+          return {
+            ...comment,
+            user: user || {
+              id: comment.userId,
+              username: 'unknown_user',
+              fullName: 'Bilinmeyen Kullanıcı',
+              profileImage: '👤',
+              city: '',
+              followersCount: 0,
+              followingCount: 0
+            },
+            createdAt: new Date(comment.createdAt)
+          };
+        })
+      );
+      
+      return comments;
+      
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      return [];
+    }
+  }
 
-    const tagCounts = this.posts.reduce((acc, post) => {
-      post.tags?.forEach(tag => {
-        acc[tag] = (acc[tag] || 0) + 1;
+  // Yorum ekle
+  static async addComment(postId: string, userId: string, commentData: CreateCommentData): Promise<PostComment | null> {
+    try {
+      const newComment = {
+        id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        postId: postId,
+        userId: userId,
+        content: commentData.content,
+        createdAt: new Date().toISOString(),
+        likesCount: 0,
+        isLiked: false
+      };
+
+      const response = await fetch(`${API_BASE_URL}/postComments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newComment)
       });
-      return acc;
-    }, {} as Record<string, number>);
 
-    return Object.entries(tagCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, limit)
-      .map(([tag, count]) => ({ tag, count }));
+      if (!response.ok) {
+        throw new Error('Failed to add comment');
+      }
+
+      const createdComment = await response.json();
+      
+      // Post'un commentsCount'unu güncelle
+      const post = await this.getPostById(postId);
+      if (post) {
+        await fetch(`${API_BASE_URL}/posts/${postId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            commentsCount: post.commentsCount + 1
+          })
+        });
+      }
+
+      const user = await getUser(createdComment.userId);
+      
+      return {
+        ...createdComment,
+        user: user || {
+          id: createdComment.userId,
+          username: 'unknown_user',
+          fullName: 'Bilinmeyen Kullanıcı',
+          profileImage: '👤',
+          city: '',
+          followersCount: 0,
+          followingCount: 0
+        },
+        createdAt: new Date(createdComment.createdAt)
+      };
+      
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      return null;
+    }
   }
 
-  // Kullanıcı postları
-  static async getUserPosts(userId: string, limit?: number): Promise<Post[]> {
-    await this.delay(200);
-    
-    const userPosts = this.posts
-      .filter(post => post.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-    return limit ? userPosts.slice(0, limit) : userPosts;
+  // Kullanıcının postlarını getir
+  static async getUserPosts(userId: string, limit: number = 20): Promise<Post[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts?userId=${userId}&_limit=${limit}&_sort=createdAt&_order=desc`);
+      if (!response.ok) return [];
+      
+      const apiPosts: ApiPost[] = await response.json();
+      const posts = await Promise.all(apiPosts.map(mapApiPostToPost));
+      
+      return posts;
+      
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+      return [];
+    }
   }
 
-  // Önerilen postlar (following kullanıcılardan)
+  // Trend olan postları getir
+  static async getTrendingPosts(limit: number = 10): Promise<Post[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts?_sort=likesCount&_order=desc&_limit=${limit}`);
+      if (!response.ok) return [];
+      
+      const apiPosts: ApiPost[] = await response.json();
+      const posts = await Promise.all(apiPosts.map(mapApiPostToPost));
+      
+      return posts;
+      
+    } catch (error) {
+      console.error('Error fetching trending posts:', error);
+      return [];
+    }
+  }
+
+  // Önerilen postlar (takip edilen kullanıcılardan)
   static async getRecommendedPosts(userId: string, limit: number = 10): Promise<Post[]> {
-    await this.delay(300);
-    
-    // Simüle edilmiş öneri algoritması
-    return this.posts
-      .filter(post => post.userId !== userId && post.visibility === 'public')
-      .sort((a, b) => {
-        // Popülerlik skoruna göre sırala
-        const aScore = a.likesCount * 2 + a.commentsCount * 3 + a.sharesCount;
-        const bScore = b.likesCount * 2 + b.commentsCount * 3 + b.sharesCount;
-        return bScore - aScore;
-      })
-      .slice(0, limit);
-  }
-
-  private static delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    try {
+      // Kullanıcının takip ettiği kişileri al
+      const followingResponse = await fetch(`${API_BASE_URL}/followRelationships?followerId=${userId}`);
+      const followingRelations = await followingResponse.json();
+      const followingIds = followingRelations.map((rel: any) => rel.followingId);
+      
+      if (followingIds.length === 0) {
+        // Takip edilen kimse yoksa trending postları döndür
+        return this.getTrendingPosts(limit);
+      }
+      
+      // Takip edilen kullanıcıların postlarını al
+      const allPosts: Post[] = [];
+      for (const followingId of followingIds) {
+        const posts = await this.getUserPosts(followingId, 5);
+        allPosts.push(...posts);
+      }
+      
+      // Tarih sırasına göre sırala ve limit uygula
+      return allPosts
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, limit);
+        
+    } catch (error) {
+      console.error('Error fetching recommended posts:', error);
+      return [];
+    }
   }
 }
 

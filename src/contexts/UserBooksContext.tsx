@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, Rea
 import { Book, UserBook, BookSearchFilters, BookSearchResult } from '../types/book';
 import { User } from '../types/user';
 import { GoogleBooksService } from '../services/googleBooksService';
+import { BookApiService } from '../services/bookApiService';
 import { useAuth } from '../hooks/useAuth';
 
 export interface UserBooksContextValue {
@@ -53,47 +54,32 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  // Initialize with some test books for the current user
-  useEffect(() => {
-    console.log('🔄 UserBooksContext useEffect - userId:', userId, 'userBooks.length:', userBooks.length);
-    if (userId) { // userId varsa kitapları kontrol et
-      // Mevcut kitapların userId'si yanlışsa temizle
-      const hasWrongUserId = userBooks.some(book => book.userId !== userId.toString());
-      if (hasWrongUserId || userBooks.length === 0) {
-        console.log('✅ Test kitapları yeniden oluşturuluyor, userId:', userId);
-        const testBooks: UserBook[] = [
-        {
-          id: 'ub-test-1',
-          userId: userId, // Dynamic user ID kullan
-          bookId: 'test-book-1',
-          title: 'Harry Potter ve Felsefe Taşı',
-          authors: ['J.K. Rowling'],
-          imageUrl: 'https://example.com/harry-potter.jpg',
-          status: 'read',
-          rating: 5,
-          dateAdded: new Date('2024-01-10'),
-          dateStarted: new Date('2024-01-12'),
-          dateFinished: new Date('2024-01-25'),
-          pages: 320
-        },
-        {
-          id: 'ub-test-2',
-          userId: userId, // Dynamic user ID kullan
-          bookId: 'test-book-2',
-          title: 'Benim Adım Kırmızı',
-          authors: ['Orhan Pamuk'],
-          imageUrl: 'https://example.com/benim-adim-kirmizi.jpg',
-          status: 'currently-reading',
-          dateAdded: new Date('2024-02-01'),
-          dateStarted: new Date('2024-02-03'),
-          pages: 560
-        }
-      ];
-      console.log('📚 Test kitapları yeniden oluşturuldu:', testBooks);
-      setUserBooks(testBooks);
-      }
+  // API'den kullanıcının kitaplarını yükle
+  const loadUserBooks = useCallback(async () => {
+    if (!userId) return;
+    
+    try {
+      setIsLoading(true);
+      setError(null);
+      console.log('🔄 UserBooksContext API\'den kitaplar yükleniyor, userId:', userId);
+      
+      const books = await BookApiService.getUserBooks(userId);
+      console.log('📚 API\'den yüklenen kitaplar:', books.length, books);
+      setUserBooks(books);
+    } catch (err) {
+      console.error('❌ Kitaplar yüklenirken hata:', err);
+      setError(err instanceof Error ? err.message : 'Kitaplar yüklenirken hata oluştu');
+      // Hata durumunda boş array set et
+      setUserBooks([]);
+    } finally {
+      setIsLoading(false);
     }
-  }, [userId, userBooks]);
+  }, [userId]);
+
+  // Component mount olduğunda ve userId değiştiğinde kitapları yükle
+  useEffect(() => {
+    loadUserBooks();
+  }, [loadUserBooks]);
 
   const addBook = useCallback(async (book: Book, status: UserBook['status'] = 'want-to-read'): Promise<UserBook> => {
     try {
@@ -107,8 +93,7 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
         throw new Error('Bu kitap zaten kütüphanenizde mevcut.');
       }
 
-      const newUserBook: UserBook = {
-        id: `ub-${userId}-${Date.now()}`,
+      const newUserBookData: Omit<UserBook, 'id'> = {
         userId,
         bookId: book.id,
         title: book.title,
@@ -120,8 +105,12 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
         isFavorite: false,
       };
       
-      setUserBooks(prev => [...prev, newUserBook]);
-      return newUserBook;
+      // API'ye kaydet
+      const savedBook = await BookApiService.addUserBook(newUserBookData);
+      
+      // Local state'i güncelle
+      setUserBooks(prev => [...prev, savedBook]);
+      return savedBook;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap eklenirken bir hata oluştu.';
       setError(errorMessage);
@@ -136,50 +125,58 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
       setIsLoading(true);
       setError(null);
 
-      setUserBooks(prev => prev.map(ub => {
-        if (ub.id === userBookId) {
-          const updates: Partial<UserBook> = {
-            status,
-            updatedAt: new Date(),
-          };
+      const book = userBooks.find(ub => ub.id === userBookId);
+      if (!book) {
+        throw new Error('Kitap bulunamadı');
+      }
 
-          if (status === 'currently-reading' && ub.status !== 'currently-reading') {
-            updates.dateStarted = new Date();
-          }
+      const updates: Partial<UserBook> = {
+        status,
+        updatedAt: new Date(),
+      };
 
-          if (status === 'read' && ub.status !== 'read') {
-            updates.dateFinished = new Date();
-            updates.readingProgress = 100;
-          }
+      if (status === 'currently-reading' && book.status !== 'currently-reading') {
+        updates.dateStarted = new Date();
+      }
 
-          return { ...ub, ...updates };
-        }
-        return ub;
-      }));
+      if (status === 'read' && book.status !== 'read') {
+        updates.dateFinished = new Date();
+        updates.readingProgress = 100;
+      }
+
+      // API'yi güncelle
+      const updatedBook = await BookApiService.updateUserBook(userBookId, updates);
+      
+      // Local state'i güncelle
+      setUserBooks(prev => prev.map(ub => 
+        ub.id === userBookId ? updatedBook : ub
+      ));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap durumu güncellenirken bir hata oluştu.';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [userBooks]);
 
   const updateBookRating = useCallback(async (userBookId: string, rating: number, review?: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      setUserBooks(prev => prev.map(ub => {
-        if (ub.id === userBookId) {
-          return {
-            ...ub,
-            rating: rating === 0 ? undefined : rating,
-            review,
-            updatedAt: new Date(),
-          };
-        }
-        return ub;
-      }));
+      const updates = {
+        rating: rating === 0 ? undefined : rating,
+        review,
+        updatedAt: new Date(),
+      };
+
+      // API'yi güncelle
+      const updatedBook = await BookApiService.updateUserBook(userBookId, updates);
+      
+      // Local state'i güncelle
+      setUserBooks(prev => prev.map(ub => 
+        ub.id === userBookId ? updatedBook : ub
+      ));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap puanı güncellenirken bir hata oluştu.';
       setError(errorMessage);
@@ -193,6 +190,10 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
       setIsLoading(true);
       setError(null);
 
+      // API'den sil
+      await BookApiService.deleteUserBook(userBookId);
+      
+      // Local state'den kaldır
       setUserBooks(prev => prev.filter(ub => ub.id !== userBookId));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap kaldırılırken bir hata oluştu.';
@@ -270,78 +271,23 @@ export const UserBooksProvider: React.FC<UserBooksProviderProps> = ({
     };
   }, [userBooks]);
 
-  // Mock fonksiyonlar - gerçek uygulamada API'den gelecek
+  // API'den tüm kullanıcıları getir
   const getAllUsers = useCallback(async (): Promise<User[]> => {
-    const { getAllMockUsers } = await import('../services/mockDataService');
-    return getAllMockUsers();
+    try {
+      return await BookApiService.getUsers();
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+      return [];
+    }
   }, []);
 
   const getUserBooks = useCallback(async (targetUserId: string): Promise<UserBook[]> => {
-    // Mock user books - gerçek uygulamada API'den gelecek
-    if (targetUserId === 'user-2') {
-      return [
-        {
-          id: 'ub-ali-1',
-          userId: 'user-2',
-          bookId: 'book-ali-1',
-          title: 'Suç ve Ceza',
-          authors: ['Fyodor Dostoyevski'],
-          imageUrl: 'https://example.com/crime-punishment.jpg',
-          status: 'read',
-          rating: 5,
-          review: 'Muhteşem bir klasik',
-          dateAdded: new Date('2024-01-20'),
-          dateStarted: new Date('2024-01-25'),
-          dateFinished: new Date('2024-02-15'),
-          pages: 624
-        },
-        {
-          id: 'ub-ali-2',
-          userId: 'user-2',
-          bookId: 'book-ali-2',
-          title: 'Dune',
-          authors: ['Frank Herbert'],
-          imageUrl: 'https://example.com/dune.jpg',
-          status: 'currently-reading',
-          dateAdded: new Date('2024-02-20'),
-          dateStarted: new Date('2024-02-22'),
-          pages: 896
-        }
-      ];
-    } else if (targetUserId === 'user-3') {
-      return [
-        {
-          id: 'ub-zehra-1',
-          userId: 'user-3',
-          bookId: 'book-zehra-1',
-          title: 'Madame Bovary',
-          authors: ['Gustave Flaubert'],
-          imageUrl: 'https://example.com/madame-bovary.jpg',
-          status: 'read',
-          rating: 4,
-          review: 'Harika bir realizm örneği',
-          dateAdded: new Date('2024-01-10'),
-          dateStarted: new Date('2024-01-12'),
-          dateFinished: new Date('2024-01-30'),
-          pages: 374
-        },
-        {
-          id: 'ub-zehra-2',
-          userId: 'user-3',
-          bookId: 'book-zehra-2',
-          title: 'Osmanlı Tarihi',
-          authors: ['Halil İnalcık'],
-          imageUrl: 'https://example.com/ottoman-history.jpg',
-          status: 'want-to-read',
-          dateAdded: new Date('2024-02-25'),
-          pages: 512
-        }
-      ];
+    try {
+      return await BookApiService.getUserBooks(targetUserId);
+    } catch (error) {
+      console.error('Failed to fetch user books:', error);
+      return [];
     }
-    
-    // Yeni mock data servisini kullan
-    const { getUserBooksById } = await import('../services/mockDataService');
-    return getUserBooksById(targetUserId);
   }, []);
 
   const value: UserBooksContextValue = {

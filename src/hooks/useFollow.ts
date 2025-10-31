@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   FollowRelationship,
   UserFollowStats,
   UserConnectionInfo,
   FollowRequest,
 } from "../types/user";
+import { BookApiService } from "../services/bookApiService";
 
 interface UseFollowResult {
   // Takip durumu
@@ -68,106 +69,7 @@ export const useFollow = (currentUserId?: string): UseFollowResult => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
 
-  // Simüle edilmiş veri - gerçek uygulamada API'den gelecek
-  const mockFollowData = {
-    relationships: [
-      {
-        id: "rel1",
-        followerId: currentUserId || "user1",
-        followingId: "user2",
-        createdAt: new Date(),
-        isActive: true,
-      },
-    ] as FollowRelationship[],
-    stats: {
-      followersCount: 156,
-      followingCount: 89,
-      mutualFollowsCount: 23,
-    } as UserFollowStats,
-    followers: [
-      {
-        user: {
-          id: "user2",
-          email: "ahmet@example.com",
-          displayName: "Ahmet Kaya",
-          avatar: "",
-          provider: "email" as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          profile: {
-            city: "İstanbul",
-            ageRange: "25-30",
-            favoriteGenres: ["Roman", "Bilim Kurgu"],
-            favoriteAuthors: ["Orhan Pamuk"],
-            interests: ["Yazma", "Sinema"],
-            intellectualBio: "Edebiyat ve sinema tutkunu",
-            isProfileComplete: true,
-          },
-        },
-        relationshipType: "follower" as const,
-        followedAt: new Date(),
-        commonInterests: ["Yazma", "Sinema"],
-        commonGenres: ["Roman"],
-        compatibilityScore: 85,
-      },
-    ] as UserConnectionInfo[],
-    following: [
-      {
-        user: {
-          id: "user3",
-          email: "elif@example.com",
-          displayName: "Elif Demir",
-          avatar: "",
-          provider: "email" as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          profile: {
-            city: "Ankara",
-            ageRange: "30-35",
-            favoriteGenres: ["Felsefi", "Psikoloji"],
-            favoriteAuthors: ["Milan Kundera"],
-            interests: ["Felsefe", "Müzik"],
-            intellectualBio: "Felsefi düşünce ve müzik sevdalısı",
-            isProfileComplete: true,
-          },
-        },
-        relationshipType: "following" as const,
-        followedAt: new Date(),
-        commonInterests: ["Müzik"],
-        commonGenres: [],
-        compatibilityScore: 72,
-      },
-    ] as UserConnectionInfo[],
-    mutualFollows: [] as UserConnectionInfo[],
-    suggestedUsers: [
-      {
-        user: {
-          id: "user4",
-          email: "can@example.com",
-          displayName: "Can Özdemir",
-          avatar: "",
-          provider: "email" as const,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          profile: {
-            city: "İzmir",
-            ageRange: "25-30",
-            favoriteGenres: ["Polisiye", "Tarih"],
-            favoriteAuthors: ["Agatha Christie"],
-            interests: ["Tarih", "Seyahat"],
-            intellectualBio: "Tarih ve polisiye roman meraklısı",
-            isProfileComplete: true,
-          },
-        },
-        relationshipType: "none" as const,
-        commonInterests: ["Seyahat"],
-        commonGenres: ["Tarih"],
-        compatibilityScore: 68,
-      },
-    ] as UserConnectionInfo[],
-    pendingRequests: [] as FollowRequest[],
-    sentRequests: [] as FollowRequest[],
-  };
+  // State for follow data loaded from API
 
   useEffect(() => {
     if (currentUserId) {
@@ -190,25 +92,11 @@ export const useFollow = (currentUserId?: string): UseFollowResult => {
 
     setIsFollowLoading(true);
     try {
-      // Simüle edilmiş API çağrısı
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newRelationship: FollowRelationship = {
-        id: `rel_${Date.now()}`,
-        followerId: currentUserId,
-        followingId: userId,
-        createdAt: new Date(),
-        isActive: true,
-      };
-
-      setFollowData((prev) => ({
-        ...prev,
-        relationships: [...prev.relationships, newRelationship],
-        stats: {
-          ...prev.stats,
-          followingCount: prev.stats.followingCount + 1,
-        },
-      }));
+      // API ile takip et
+      await BookApiService.followUser(currentUserId, userId);
+      
+      // Veriyi yenile
+      await refreshFollowData();
     } catch (error) {
       console.error("Takip etme hatası:", error);
     } finally {
@@ -221,20 +109,11 @@ export const useFollow = (currentUserId?: string): UseFollowResult => {
 
     setIsFollowLoading(true);
     try {
-      // Simüle edilmiş API çağrısı
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setFollowData((prev) => ({
-        ...prev,
-        relationships: prev.relationships.filter(
-          (rel) =>
-            !(rel.followerId === currentUserId && rel.followingId === userId)
-        ),
-        stats: {
-          ...prev.stats,
-          followingCount: prev.stats.followingCount - 1,
-        },
-      }));
+      // API ile takipten çıkar
+      await BookApiService.unfollowUser(currentUserId, userId);
+      
+      // Veriyi yenile
+      await refreshFollowData();
     } catch (error) {
       console.error("Takip bırakma hatası:", error);
     } finally {
@@ -242,37 +121,143 @@ export const useFollow = (currentUserId?: string): UseFollowResult => {
     }
   };
 
-  const refreshFollowData = async (): Promise<void> => {
+  const refreshFollowData = useCallback(async (): Promise<void> => {
+    if (!currentUserId) return;
+    
     setIsLoading(true);
     try {
-      // Simüle edilmiş API çağrısı
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setFollowData(mockFollowData);
+      // API'den verileri al
+      const [relationships, users, stats] = await Promise.all([
+        BookApiService.getFollowRelationships(),
+        BookApiService.getUsers(),
+        BookApiService.getUserStats(currentUserId)
+      ]);
+
+      // Takipçileri ve takip edilenleri hesapla
+      const followers = relationships
+        .filter(rel => rel.followingId === currentUserId && rel.isActive)
+        .map(rel => {
+          const user = users.find(u => u.id === rel.followerId);
+          return user ? {
+            user,
+            relationshipType: 'follower' as const,
+            followedAt: new Date(rel.createdAt),
+            commonInterests: [], // Bu hesaplanabilir
+            commonGenres: [], // Bu hesaplanabilir
+            compatibilityScore: Math.floor(Math.random() * 40) + 60
+          } : null;
+        })
+        .filter(Boolean) as UserConnectionInfo[];
+
+      const following = relationships
+        .filter(rel => rel.followerId === currentUserId && rel.isActive)
+        .map(rel => {
+          const user = users.find(u => u.id === rel.followingId);
+          return user ? {
+            user,
+            relationshipType: 'following' as const,
+            followedAt: new Date(rel.createdAt),
+            commonInterests: [],
+            commonGenres: [],
+            compatibilityScore: Math.floor(Math.random() * 40) + 60
+          } : null;
+        })
+        .filter(Boolean) as UserConnectionInfo[];
+
+      // Önerilen kullanıcıları al
+      const suggestedUsersData = await BookApiService.getSuggestedUsers(currentUserId);
+      const suggestedUsers = suggestedUsersData.map(user => ({
+        user,
+        relationshipType: 'none' as const,
+        commonInterests: user.profile?.interests || [],
+        commonGenres: user.profile?.favoriteGenres || [],
+        compatibilityScore: Math.floor(Math.random() * 40) + 60
+      }));
+
+      const userStats = stats.find(s => s.userId === currentUserId);
+      
+      // Mutual follows hesapla (hem takip eden hem takip edilen)
+      const mutualFollows = followers.filter(follower => 
+        following.some(f => f.user.id === follower.user.id)
+      );
+
+      setFollowData({
+        relationships,
+        stats: {
+          followersCount: userStats?.followersCount || 0,
+          followingCount: userStats?.followingCount || 0,
+          mutualFollowsCount: mutualFollows.length
+        },
+        followers,
+        following,
+        mutualFollows,
+        suggestedUsers,
+        pendingRequests: [],
+        sentRequests: []
+      });
     } catch (error) {
       console.error("Takip verileri yenileme hatası:", error);
+      // Fallback to empty data on error
+      setFollowData({
+        relationships: [],
+        stats: { followersCount: 0, followingCount: 0, mutualFollowsCount: 0 },
+        followers: [],
+        following: [],
+        mutualFollows: [],
+        suggestedUsers: [],
+        pendingRequests: [],
+        sentRequests: []
+      });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentUserId]);
 
   const searchUsers = async (query: string): Promise<UserConnectionInfo[]> => {
-    // Simüle edilmiş arama
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return mockFollowData.suggestedUsers.filter(
-      (user) =>
-        user.user.displayName.toLowerCase().includes(query.toLowerCase()) ||
-        user.user.profile?.interests.some((interest) =>
-          interest.toLowerCase().includes(query.toLowerCase())
+    try {
+      const users = await BookApiService.getUsers();
+      const currentUserId_safe = currentUserId || '';
+      
+      return users
+        .filter(user => 
+          user.id !== currentUserId_safe &&
+          (user.displayName.toLowerCase().includes(query.toLowerCase()) ||
+           user.profile?.interests?.some(interest =>
+             interest.toLowerCase().includes(query.toLowerCase())
+           ))
         )
-    );
+        .map(user => ({
+          user,
+          relationshipType: 'none' as const,
+          commonInterests: user.profile?.interests || [],
+          commonGenres: user.profile?.favoriteGenres || [],
+          compatibilityScore: Math.floor(Math.random() * 40) + 60
+        }));
+    } catch (error) {
+      console.error('Search users error:', error);
+      return [];
+    }
   };
 
   const getRecommendedUsers = async (): Promise<UserConnectionInfo[]> => {
-    // Simüle edilmiş öneri algoritması
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    return mockFollowData.suggestedUsers
-      .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
-      .slice(0, 5);
+    try {
+      if (!currentUserId) return [];
+      
+      const suggestedUsers = await BookApiService.getSuggestedUsers(currentUserId);
+      return suggestedUsers
+        .map(user => ({
+          user,
+          relationshipType: 'none' as const,
+          commonInterests: user.profile?.interests || [],
+          commonGenres: user.profile?.favoriteGenres || [],
+          compatibilityScore: Math.floor(Math.random() * 40) + 60
+        }))
+        .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
+        .slice(0, 5);
+    } catch (error) {
+      console.error('Get recommended users error:', error);
+      return [];
+    }
   };
 
   const getCulturalMatches = async (preferences?: {
@@ -280,72 +265,119 @@ export const useFollow = (currentUserId?: string): UseFollowResult => {
     preferredGenres?: string[];
     preferredInterests?: string[];
   }): Promise<UserConnectionInfo[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      if (!currentUserId) return [];
+      
+      const suggestedUsers = await BookApiService.getSuggestedUsers(currentUserId);
+      const minScore = (preferences?.minScore || 60);
+      
+      let filteredUsers = suggestedUsers
+        .map(user => ({
+          user,
+          relationshipType: 'none' as const,
+          commonInterests: user.profile?.interests || [],
+          commonGenres: user.profile?.favoriteGenres || [],
+          compatibilityScore: Math.floor(Math.random() * 40) + 60
+        }))
+        .filter(userInfo => userInfo.compatibilityScore >= minScore);
 
-    const minScore = preferences?.minScore || 0.6;
-    let filteredUsers = mockFollowData.suggestedUsers.filter(
-      (userInfo) => userInfo.compatibilityScore >= minScore
-    );
+      // Tür filtresi
+      if (preferences?.preferredGenres?.length) {
+        filteredUsers = filteredUsers.filter((userInfo) =>
+          preferences.preferredGenres!.some((genre) =>
+            userInfo.user.profile?.favoriteGenres?.includes(genre)
+          )
+        );
+      }
 
-    // Tür filtresi
-    if (preferences?.preferredGenres?.length) {
-      filteredUsers = filteredUsers.filter((userInfo) =>
-        preferences.preferredGenres!.some((genre) =>
-          userInfo.user.profile?.favoriteGenres.includes(genre)
-        )
+      // İlgi alanı filtresi
+      if (preferences?.preferredInterests?.length) {
+        filteredUsers = filteredUsers.filter((userInfo) =>
+          preferences.preferredInterests!.some((interest) =>
+            userInfo.user.profile?.interests?.includes(interest)
+          )
+        );
+      }
+
+      return filteredUsers.sort(
+        (a, b) => b.compatibilityScore - a.compatibilityScore
       );
+    } catch (error) {
+      console.error('Get cultural matches error:', error);
+      return [];
     }
-
-    // İlgi alanı filtresi
-    if (preferences?.preferredInterests?.length) {
-      filteredUsers = filteredUsers.filter((userInfo) =>
-        preferences.preferredInterests!.some((interest) =>
-          userInfo.user.profile?.interests.includes(interest)
-        )
-      );
-    }
-
-    return filteredUsers.sort(
-      (a, b) => b.compatibilityScore - a.compatibilityScore
-    );
   };
 
   const findSimilarReaders = async (
     genre?: string
   ): Promise<UserConnectionInfo[]> => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      if (!currentUserId) return [];
+      
+      const suggestedUsers = await BookApiService.getSuggestedUsers(currentUserId);
+      
+      if (!genre) {
+        return suggestedUsers
+          .slice(0, 3)
+          .map(user => ({
+            user,
+            relationshipType: 'none' as const,
+            commonInterests: user.profile?.interests || [],
+            commonGenres: user.profile?.favoriteGenres || [],
+            compatibilityScore: Math.floor(Math.random() * 40) + 60
+          }));
+      }
 
-    if (!genre) {
-      return mockFollowData.suggestedUsers.slice(0, 3);
+      return suggestedUsers
+        .filter(user => user.profile?.favoriteGenres?.includes(genre))
+        .map(user => ({
+          user,
+          relationshipType: 'none' as const,
+          commonInterests: user.profile?.interests || [],
+          commonGenres: user.profile?.favoriteGenres || [],
+          compatibilityScore: Math.floor(Math.random() * 40) + 60
+        }))
+        .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
+        .slice(0, 4);
+    } catch (error) {
+      console.error('Find similar readers error:', error);
+      return [];
     }
-
-    return mockFollowData.suggestedUsers
-      .filter((userInfo) =>
-        userInfo.user.profile?.favoriteGenres.includes(genre)
-      )
-      .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
-      .slice(0, 4);
   };
 
   const getPersonalizedRecommendations = async (): Promise<
     UserConnectionInfo[]
   > => {
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    try {
+      if (!currentUserId) return [];
+      
+      const suggestedUsers = await BookApiService.getSuggestedUsers(currentUserId);
+      const usersWithCompatibility = suggestedUsers.map(user => ({
+        user,
+        relationshipType: 'none' as const,
+        commonInterests: user.profile?.interests || [],
+        commonGenres: user.profile?.favoriteGenres || [],
+        compatibilityScore: Math.floor(Math.random() * 40) + 60
+      }));
 
-    // Yüksek uyumlu kullanıcıları önceliklendir
-    const highCompatible = mockFollowData.suggestedUsers.filter(
-      (userInfo) => userInfo.compatibilityScore >= 80
-    );
+      // Yüksek uyumlu kullanıcıları önceliklendir
+      const highCompatible = usersWithCompatibility.filter(
+        (userInfo) => userInfo.compatibilityScore >= 80
+      );
 
-    const mediumCompatible = mockFollowData.suggestedUsers.filter(
-      (userInfo) =>
-        userInfo.compatibilityScore >= 60 && userInfo.compatibilityScore < 80
-    );
+      const mediumCompatible = usersWithCompatibility.filter(
+        (userInfo) =>
+          userInfo.compatibilityScore >= 60 && userInfo.compatibilityScore < 80
+      );
 
-    // Önce yüksek uyumlu, sonra orta uyumlu
-    return [...highCompatible, ...mediumCompatible.slice(0, 2)].sort(
-      (a, b) => b.compatibilityScore - a.compatibilityScore
-    );
+      // Önce yüksek uyumlu, sonra orta uyumlu
+      return [...highCompatible, ...mediumCompatible.slice(0, 2)].sort(
+        (a, b) => b.compatibilityScore - a.compatibilityScore
+      );
+    } catch (error) {
+      console.error('Get personalized recommendations error:', error);
+      return [];
+    }
   };
 
   return {

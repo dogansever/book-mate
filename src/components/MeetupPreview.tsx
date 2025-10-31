@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useMeetupContext } from '../hooks/useMeetupContext';
+import { PlaceholderImages } from '../utils/placeholderImages';
 import './MeetupPreview.css';
 
 interface MeetupPreviewProps {
@@ -66,16 +67,17 @@ const MeetupPreview: React.FC<MeetupPreviewProps> = ({ userId }) => {
           <div className="meetup-preview-meta">
             <span className="preview-theme">📖 {meetup.theme}</span>
             <div className="preview-members">
-              👥 {meetup.members.filter(m => m.status === 'active').length}/{meetup.maxMembers}
+              👥 {(meetup as any).memberCount || meetup.members?.length || 0}/{(meetup as any).maxMembers || 10}
             </div>
           </div>
 
           {meetup.book && (
             <div className="preview-book">
               <img 
-                src={meetup.book.imageLinks?.thumbnail || '/placeholder-book.png'} 
+                src={meetup.book.imageLinks?.thumbnail || PlaceholderImages.book} 
                 alt={meetup.book.title}
                 className="preview-book-cover"
+                onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
               />
               <span className="preview-book-title">{meetup.book.title}</span>
             </div>
@@ -83,8 +85,8 @@ const MeetupPreview: React.FC<MeetupPreviewProps> = ({ userId }) => {
 
           <div className="preview-activity">
             <span className="activity-indicator">
-              {meetup.messages.length > 0 ? '💬' : '⭐'} 
-              {formatLastActivity(meetup.lastActivity)}
+              {(meetup.messages?.length || 0) > 0 ? '💬' : '⭐'} 
+              {formatLastActivity(meetup.lastActivity || (meetup as any).updatedAt || meetup.createdAt)}
             </span>
             {meetup.nextMeeting && (
               <span className="next-meeting">
@@ -96,16 +98,16 @@ const MeetupPreview: React.FC<MeetupPreviewProps> = ({ userId }) => {
           <div className="preview-stats">
             <div className="preview-stat">
               <span>💬</span>
-              <span>{meetup.messages.length}</span>
+              <span>{meetup.messages?.length || 0}</span>
             </div>
             <div className="preview-stat">
               <span>📅</span>
-              <span>{meetup.stats.totalMeetings}</span>
+              <span>{(meetup as any).stats?.totalMeetings || 0}</span>
             </div>
-            {meetup.readingGoal && (
+            {(meetup as any).readingGoal && (meetup as any).readingGoal.targetPages > 0 && (
               <div className="preview-stat">
                 <span>📖</span>
-                <span>{Math.round((meetup.readingGoal.currentPages / meetup.readingGoal.targetPages) * 100)}%</span>
+                <span>{Math.round(((meetup as any).readingGoal.currentPages / (meetup as any).readingGoal.targetPages) * 100)}%</span>
               </div>
             )}
           </div>

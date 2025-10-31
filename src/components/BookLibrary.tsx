@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useUserBooks } from '../contexts/UserBooksContext';
 import { UserBook } from '../types/book';
+import { PlaceholderImages } from '../utils/placeholderImages';
 import './BookLibrary.css';
 
 interface BookLibraryProps {
@@ -234,11 +235,9 @@ const BookLibrary: React.FC<BookLibraryProps> = ({ onBookClick }) => {
                 <div className="book-image" onClick={() => onBookClick?.(userBook)}>
                   {userBook.imageUrl || userBook.book?.imageLinks?.thumbnail ? (
                     <img 
-                      src={userBook.imageUrl || userBook.book?.imageLinks?.thumbnail || ''} 
+                      src={userBook.imageUrl || userBook.book?.imageLinks?.thumbnail || PlaceholderImages.book} 
                       alt={userBook.title || userBook.book?.title || 'Kitap'}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/placeholder-book.png';
-                      }}
+                      onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
                     />
                   ) : (
                     <div className="book-placeholder">

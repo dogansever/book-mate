@@ -4,9 +4,10 @@ import { useBookSwap } from '../contexts/BookSwapContext';
 import { useLocation } from '../hooks/useLocation';
 import { UserBook, SearchCriteria, SearchFilters, SearchResultItem } from '../types/book';
 import { BookSearchService } from '../services/bookSearchService';
-import { getAllMockUsers, getAllMockUserBooks } from '../services/mockDataService';
+import { BookApiService } from '../services/bookApiService';
 import SearchFilter from './SearchFilter';
 import SwapRequestModal from './SwapRequestModal';
+import { PlaceholderImages } from '../utils/placeholderImages';
 import './BookDiscovery.css';
 
 const BookDiscovery: React.FC = () => {
@@ -22,22 +23,26 @@ const BookDiscovery: React.FC = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
 
-  const performInitialSearch = useCallback(() => {
-    const allUsers = getAllMockUsers();
-    const allBooks = getAllMockUserBooks();
-    
+  const performInitialSearch = useCallback(async () => {
     if (!state.user?.id) return;
 
-    const initialResults = BookSearchService.searchBooks(
-      allBooks,
-      allUsers,
-      { query: '' }, // Boş arama - tüm kitaplar
-      { sortBy: 'rating', sortOrder: 'desc' },
-      state.user.id
-    );
+    try {
+      const allUsers = await BookApiService.getUsers();
+      const allBooks = await BookApiService.getAllBooks();
 
-    setSearchResults(initialResults.results.slice(0, 20)); // İlk 20 sonuç
-    setNearbyResults(initialResults.nearbyResults || []);
+      const initialResults = BookSearchService.searchBooks(
+        allBooks,
+        allUsers,
+        { query: '' }, // Boş arama - tüm kitaplar
+        { sortBy: 'rating', sortOrder: 'desc' },
+        state.user.id
+      );
+
+      setSearchResults(initialResults.results.slice(0, 20)); // İlk 20 sonuç
+      setNearbyResults(initialResults.nearbyResults || []);
+    } catch (error) {
+      console.error('Failed to load initial search:', error);
+    }
   }, [state.user?.id, setSearchResults, setNearbyResults]);
 
   useEffect(() => {
@@ -45,27 +50,32 @@ const BookDiscovery: React.FC = () => {
     performInitialSearch();
   }, [performInitialSearch]);
 
-  const handleSearch = (criteria: SearchCriteria, filters: SearchFilters) => {
+  const handleSearch = async (criteria: SearchCriteria, filters: SearchFilters) => {
     setIsSearching(true);
     setHasSearched(true);
     
-    const allUsers = getAllMockUsers();
-    const allBooks = getAllMockUserBooks();
-    
     if (!state.user?.id) return;
 
-    const results = BookSearchService.searchBooks(
-      allBooks,
-      allUsers,
-      criteria,
-      filters,
-      state.user.id,
-      location ? { latitude: location.latitude, longitude: location.longitude } : undefined
-    );
+    try {
+      const allUsers = await BookApiService.getUsers();
+      const allBooks = await BookApiService.getAllBooks();
 
-    setSearchResults(results.results);
-    setNearbyResults(results.nearbyResults || []);
-    setIsSearching(false);
+      const results = BookSearchService.searchBooks(
+        allBooks,
+        allUsers,
+        criteria,
+        filters,
+        state.user.id,
+        location ? { latitude: location.latitude, longitude: location.longitude } : undefined
+      );
+
+      setSearchResults(results.results);
+      setNearbyResults(results.nearbyResults || []);
+    } catch (error) {
+      console.error('Failed to search books:', error);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleLocationRequest = () => {
@@ -112,11 +122,9 @@ const BookDiscovery: React.FC = () => {
       <div key={userBook.id} className="book-card">
         <div className="book-image">
           <img 
-            src={userBook.imageUrl || '/placeholder-book.jpg'} 
+            src={userBook.imageUrl || PlaceholderImages.book} 
             alt={userBook.title}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/placeholder-book.jpg';
-            }}
+            onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
           />
         </div>
         

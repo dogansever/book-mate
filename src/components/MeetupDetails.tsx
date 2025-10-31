@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Meetup, CreateMessageData, CreateMeetingData } from '../types/meetup';
+import React, { useState, useEffect, useRef } from 'react';
+import { useMeetupContext } from '../hooks/useMeetupContext';
+import { useAuth } from '../hooks/useAuth';
+import { Meetup, MeetupMessage } from '../types/meetup';
 import InvitationModal from './InvitationModal';
+import { PlaceholderImages } from '../utils/placeholderImages';
 import './MeetupDetails.css';
 
 interface MeetupDetailsProps {
@@ -242,9 +245,10 @@ const MeetupDetails: React.FC<MeetupDetailsProps> = ({
                   <h3>Kitap</h3>
                   <div className="book-info">
                     <img 
-                      src={meetup.book.imageLinks?.thumbnail || '/placeholder-book.png'} 
+                      src={meetup.book.imageLinks?.thumbnail || PlaceholderImages.book} 
                       alt={meetup.book.title}
                       className="book-cover"
+                      onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
                     />
                     <div className="book-details">
                       <h4>{meetup.book.title}</h4>

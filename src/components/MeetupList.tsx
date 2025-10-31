@@ -48,15 +48,16 @@ const MeetupList: React.FC<MeetupListProps> = ({
   };
 
   const isUserMember = (meetup: Meetup): boolean => {
-    return meetup.members.some(member => 
-      member.userId === currentUserId && member.status === 'active'
-    );
+    // API'den gelen members basit string array olduğu için
+    return (meetup.members as unknown as string[])?.includes(currentUserId || '') || false;
   };
 
   const canJoinMeetup = (meetup: Meetup): boolean => {
+    const memberCount = (meetup as any).memberCount || meetup.members?.length || 0;
+    const maxMembers = (meetup as any).maxMembers || 10;
     return Boolean(currentUserId && 
            !isUserMember(meetup) && 
-           meetup.members.filter(m => m.status === 'active').length < meetup.maxMembers);
+           memberCount < maxMembers);
   };
 
   const getStatusColor = (status: Meetup['status']) => {
@@ -304,26 +305,26 @@ const MeetupList: React.FC<MeetupListProps> = ({
                 <div className="meetup-stats">
                   <div className="stat">
                     <span className="stat-icon">👥</span>
-                    <span>{meetup.members.filter(m => m.status === 'active').length}/{meetup.maxMembers}</span>
+                    <span>{(meetup as any).memberCount || meetup.members?.length || 0}/{(meetup as any).maxMembers || 10}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-icon">💬</span>
-                    <span>{meetup.messages.length}</span>
+                    <span>{meetup.messages?.length || 0}</span>
                   </div>
                   <div className="stat">
                     <span className="stat-icon">📅</span>
-                    <span>{meetup.stats.totalMeetings}</span>
+                    <span>{(meetup as any).stats?.totalMeetings || 0}</span>
                   </div>
                 </div>
 
                 <div className="meetup-footer">
                   <div className="owner-info">
                     <img 
-                      src={meetup.owner.avatar || '/default-avatar.png'} 
-                      alt={meetup.owner.displayName}
+                      src={(meetup as any).owner?.avatar || '/default-avatar.png'} 
+                      alt={(meetup as any).owner?.displayName || 'Grup Sahibi'}
                       className="owner-avatar"
                     />
-                    <span>{meetup.owner.displayName}</span>
+                    <span>{(meetup as any).owner?.displayName || `Kullanıcı ${(meetup as any).createdBy}`}</span>
                   </div>
                   
                   <div className="last-activity">
@@ -352,7 +353,7 @@ const MeetupList: React.FC<MeetupListProps> = ({
                     <span className="member-badge">Üyesiniz</span>
                   )}
                   
-                  {meetup.members.filter(m => m.status === 'active').length >= meetup.maxMembers && 
+                  {((meetup as any).memberCount || meetup.members?.length || 0) >= ((meetup as any).maxMembers || 10) && 
                    !isUserMember(meetup) && (
                     <span className="full-badge">Dolu</span>
                   )}

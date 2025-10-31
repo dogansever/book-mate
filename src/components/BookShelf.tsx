@@ -4,6 +4,7 @@ import { useBookSwap } from '../contexts/BookSwapContext';
 import { useAuth } from '../hooks/useAuth';
 import { UserBook } from '../types/book';
 import SwapRequestModal from './SwapRequestModal';
+import { PlaceholderImages } from '../utils/placeholderImages';
 import './BookShelf.css';
 
 interface BookShelfProps {
@@ -262,11 +263,9 @@ const BookShelf: React.FC<BookShelfProps> = ({
                   <div className="book-cover" onClick={() => handleBookClick(userBook)}>
                     {userBook.imageUrl ? (
                       <img
-                        src={userBook.imageUrl}
+                        src={userBook.imageUrl || PlaceholderImages.book}
                         alt={userBook.title}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/placeholder-book.png';
-                        }}
+                        onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
                       />
                     ) : (
                       <div className="book-placeholder">📚</div>

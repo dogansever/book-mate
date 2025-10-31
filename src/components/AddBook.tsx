@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Book, UserBook } from '../types/book';
 import { GoogleBooksService } from '../services/googleBooksService';
 import { useUserBooks } from '../contexts/UserBooksContext';
+import { PlaceholderImages } from '../utils/placeholderImages';
 import './AddBook.css';
 
 interface AddBookProps {
@@ -208,11 +209,9 @@ const AddBook: React.FC<AddBookProps> = ({ onBookAdded, onClose }) => {
                     <div className="book-image">
                       {book.imageLinks?.thumbnail ? (
                         <img 
-                          src={book.imageLinks.thumbnail} 
+                          src={book.imageLinks.thumbnail || PlaceholderImages.book} 
                           alt={book.title}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/placeholder-book.png';
-                          }}
+                          onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
                         />
                       ) : (
                         <div className="book-placeholder">

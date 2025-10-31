@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CreateMeetupData, MEETUP_CATEGORIES, POPULAR_THEMES } from '../types/meetup';
 import { Book } from '../types/book';
 import { GoogleBooksService } from '../services/googleBooksService';
+import { PlaceholderImages } from '../utils/placeholderImages';
 import './CreateMeetup.css';
 
 interface CreateMeetupProps {
@@ -206,9 +207,10 @@ const CreateMeetup: React.FC<CreateMeetupProps> = ({
                         onClick={() => handleBookSelect(book)}
                       >
                         <img
-                          src={book.imageLinks?.thumbnail || '/placeholder-book.png'}
+                          src={book.imageLinks?.thumbnail || PlaceholderImages.book}
                           alt={book.title}
                           className="book-thumbnail"
+                          onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
                         />
                         <div className="book-info">
                           <h4>{book.title}</h4>
@@ -222,8 +224,9 @@ const CreateMeetup: React.FC<CreateMeetupProps> = ({
                 {selectedBook && (
                   <div className="selected-book">
                     <img
-                      src={selectedBook.imageLinks?.thumbnail || '/placeholder-book.png'}
+                      src={selectedBook.imageLinks?.thumbnail || PlaceholderImages.book}
                       alt={selectedBook.title}
+                      onError={(e) => PlaceholderImages.handleImageError(e, 'book')}
                     />
                     <div>
                       <h4>{selectedBook.title}</h4>

@@ -1,0 +1,967 @@
+{
+  "users": [
+    {
+      "id": "115928871880532961861",
+      "email": "test.user@example.com",
+      "displayName": "Test User",
+      "avatar": "📚",
+      "provider": "email",
+      "profile": {
+        "city": "İstanbul",
+        "coordinates": {
+          "latitude": 41.0082,
+          "longitude": 28.9784
+        },
+        "favoriteGenres": [
+          "Roman",
+          "Bilim Kurgu",
+          "Kişisel Gelişim"
+        ],
+        "favoriteAuthors": [
+          "Dan Brown",
+          "Stephen King",
+          "Paulo Coelho"
+        ],
+        "interests": [
+          "Okuma",
+          "Film",
+          "Teknoloji"
+        ],
+        "bio": "Kitap okumayı seven teknoloji meraklısı.",
+        "readingGoal": 30,
+        "isProfileComplete": true
+      },
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "lastLoginAt": "2025-10-31T00:00:00.000Z"
+    },
+    {
+      "id": "user-2",
+      "email": "ali.kaya@example.com",
+      "displayName": "Ali Kaya",
+      "avatar": "👨‍💼",
+      "provider": "email",
+      "profile": {
+        "city": "İstanbul",
+        "coordinates": {
+          "latitude": 41.0082,
+          "longitude": 28.9784
+        },
+        "favoriteGenres": [
+          "Klasik Edebiyat",
+          "Felsefe",
+          "Tarih"
+        ],
+        "favoriteAuthors": [
+          "Dostoyevski",
+          "Orhan Pamuk",
+          "Sabahattin Ali"
+        ],
+        "interests": [
+          "Okuma",
+          "Seyahat",
+          "Müzik"
+        ],
+        "bio": "Edebiyat ve felsefe meraklısı. Kitap takas etmeyi seviyorum.",
+        "readingGoal": 50,
+        "isProfileComplete": true
+      },
+      "createdAt": "2024-01-15T00:00:00.000Z",
+      "lastLoginAt": "2025-10-31T00:00:00.000Z"
+    },
+    {
+      "id": "user-3",
+      "email": "zehra.demir@example.com",
+      "displayName": "Zehra Demir",
+      "avatar": "👩‍🎓",
+      "provider": "email",
+      "profile": {
+        "city": "Ankara",
+        "coordinates": {
+          "latitude": 39.9334,
+          "longitude": 32.8597
+        },
+        "favoriteGenres": [
+          "Roman",
+          "Biyografi",
+          "Psikoloji"
+        ],
+        "favoriteAuthors": [
+          "Virginia Woolf",
+          "Elif Şafak",
+          "Milan Kundera"
+        ],
+        "interests": [
+          "Yazma",
+          "Resim",
+          "Yoga"
+        ],
+        "bio": "Psikoloji öğrencisi ve kitap kurdu.",
+        "readingGoal": 36,
+        "isProfileComplete": true
+      },
+      "createdAt": "2024-02-01T00:00:00.000Z",
+      "lastLoginAt": "2025-10-31T00:00:00.000Z"
+    },
+    {
+      "id": "user-4",
+      "email": "mehmet.ozkan@example.com",
+      "displayName": "Mehmet Özkan",
+      "avatar": "👨‍🔬",
+      "provider": "email",
+      "profile": {
+        "city": "İzmir",
+        "coordinates": {
+          "latitude": 38.4237,
+          "longitude": 27.1428
+        },
+        "favoriteGenres": [
+          "Bilim Kurgu",
+          "Fantastik",
+          "Teknoloji"
+        ],
+        "favoriteAuthors": [
+          "Isaac Asimov",
+          "Philip K. Dick",
+          "Liu Cixin"
+        ],
+        "interests": [
+          "Teknoloji",
+          "Oyun",
+          "Bilim"
+        ],
+        "bio": "Yazılım geliştirici ve bilim kurgu tutkunu.",
+        "readingGoal": 30,
+        "isProfileComplete": true
+      },
+      "createdAt": "2024-01-20T00:00:00.000Z",
+      "lastLoginAt": "2025-10-31T00:00:00.000Z"
+    },
+    {
+      "id": "user-5",
+      "email": "ayse.yilmaz@example.com",
+      "displayName": "Ayşe Yılmaz",
+      "avatar": "👩‍⚕️",
+      "provider": "email",
+      "profile": {
+        "city": "Bursa",
+        "coordinates": {
+          "latitude": 40.1826,
+          "longitude": 29.0665
+        },
+        "favoriteGenres": [
+          "Kişisel Gelişim",
+          "Sağlık",
+          "Edebiyat"
+        ],
+        "favoriteAuthors": [
+          "Malcolm Gladwell",
+          "Brené Brown",
+          "Nazim Hikmet"
+        ],
+        "interests": [
+          "Spor",
+          "Meditasyon",
+          "Doğa"
+        ],
+        "bio": "Doktor ve yaşam koçu. Kitapların hayatımızı değiştirdiğine inanıyorum.",
+        "readingGoal": 40,
+        "isProfileComplete": true
+      },
+      "createdAt": "2024-02-05T00:00:00.000Z",
+      "lastLoginAt": "2025-10-31T00:00:00.000Z"
+    },
+    {
+      "id": "user-6",
+      "email": "can.bulut@example.com",
+      "displayName": "Can Bulut",
+      "avatar": "🎨",
+      "provider": "email",
+      "profile": {
+        "city": "Antalya",
+        "coordinates": {
+          "latitude": 36.8969,
+          "longitude": 30.7133
+        },
+        "favoriteGenres": [
+          "Sanat",
+          "Tarih",
+          "Fotoğrafçılık"
+        ],
+        "favoriteAuthors": [
+          "John Berger",
+          "Susan Sontag",
+          "İlber Ortaylı"
+        ],
+        "interests": [
+          "Fotoğraf",
+          "Seyahat",
+          "Sanat"
+        ],
+        "bio": "Fotoğrafçı ve sanat tarihi meraklısı.",
+        "readingGoal": 25,
+        "isProfileComplete": true
+      },
+      "createdAt": "2024-01-25T00:00:00.000Z",
+      "lastLoginAt": "2025-10-31T00:00:00.000Z"
+    }
+  ],
+  "userBooks": [
+    {
+      "id": "ub-user1-1",
+      "userId": "115928871880532961861",
+      "bookId": "book-user1-1",
+      "title": "Da Vinci Şifresi",
+      "authors": [
+        "Dan Brown"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300",
+      "status": "read",
+      "rating": 4,
+      "review": "Heyecan verici bir gerilim",
+      "dateAdded": "2024-01-10T00:00:00.000Z",
+      "dateStarted": "2024-01-15T00:00:00.000Z",
+      "dateFinished": "2024-01-20T00:00:00.000Z",
+      "pages": 454
+    },
+    {
+      "id": "ub-user1-2",
+      "userId": "115928871880532961861",
+      "bookId": "book-user1-2",
+      "title": "Simyacı",
+      "authors": [
+        "Paulo Coelho"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300",
+      "status": "currently-reading",
+      "dateAdded": "2024-02-01T00:00:00.000Z",
+      "dateStarted": "2024-02-05T00:00:00.000Z",
+      "pages": 163,
+      "readingProgress": 45
+    },
+    {
+      "id": "ub-user1-3",
+      "userId": "115928871880532961861",
+      "bookId": "book-user1-3",
+      "title": "1984",
+      "authors": [
+        "George Orwell"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300",
+      "status": "want-to-read",
+      "dateAdded": "2024-02-10T00:00:00.000Z",
+      "pages": 328
+    },
+    {
+      "id": "ub-ali-1",
+      "userId": "user-2",
+      "bookId": "book-ali-1",
+      "title": "Suç ve Ceza",
+      "authors": [
+        "Fyodor Dostoyevski"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300",
+      "status": "read",
+      "rating": 5,
+      "review": "Muhteşem bir psikolojik roman",
+      "dateAdded": "2024-01-20T00:00:00.000Z",
+      "dateStarted": "2024-01-25T00:00:00.000Z",
+      "dateFinished": "2024-02-15T00:00:00.000Z",
+      "pages": 624
+    },
+    {
+      "id": "ub-ali-2",
+      "userId": "user-2",
+      "bookId": "book-ali-2",
+      "title": "Beyaz Diş",
+      "authors": [
+        "Jack London"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300",
+      "status": "currently-reading",
+      "dateAdded": "2024-02-20T00:00:00.000Z",
+      "dateStarted": "2024-02-22T00:00:00.000Z",
+      "pages": 298,
+      "readingProgress": 65
+    },
+    {
+      "id": "ub-ali-3",
+      "userId": "user-2",
+      "bookId": "book-ali-3",
+      "title": "Benim Adım Kırmızı",
+      "authors": [
+        "Orhan Pamuk"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300",
+      "status": "want-to-read",
+      "dateAdded": "2024-03-01T00:00:00.000Z",
+      "pages": 475
+    },
+    {
+      "id": "ub-zehra-1",
+      "userId": "user-3",
+      "bookId": "book-zehra-1",
+      "title": "Madame Bovary",
+      "authors": [
+        "Gustave Flaubert"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300",
+      "status": "read",
+      "rating": 4,
+      "review": "Gerçekçi edebiyatın başyapıtı",
+      "dateAdded": "2024-01-10T00:00:00.000Z",
+      "dateStarted": "2024-01-15T00:00:00.000Z",
+      "dateFinished": "2024-02-10T00:00:00.000Z",
+      "pages": 416
+    },
+    {
+      "id": "ub-zehra-2",
+      "userId": "user-3",
+      "bookId": "book-zehra-2",
+      "title": "Aşk",
+      "authors": [
+        "Elif Şafak"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=300",
+      "status": "read",
+      "rating": 5,
+      "dateAdded": "2024-02-05T00:00:00.000Z",
+      "dateStarted": "2024-02-10T00:00:00.000Z",
+      "dateFinished": "2024-02-25T00:00:00.000Z",
+      "pages": 368
+    },
+    {
+      "id": "ub-zehra-3",
+      "userId": "user-3",
+      "bookId": "book-zehra-3",
+      "title": "Varolmanın Dayanılmaz Hafifliği",
+      "authors": [
+        "Milan Kundera"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300",
+      "status": "currently-reading",
+      "dateAdded": "2024-02-20T00:00:00.000Z",
+      "dateStarted": "2024-03-01T00:00:00.000Z",
+      "pages": 314,
+      "readingProgress": 40
+    },
+    {
+      "id": "ub-mehmet-1",
+      "userId": "user-4",
+      "bookId": "book-mehmet-1",
+      "title": "Dune",
+      "authors": [
+        "Frank Herbert"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300",
+      "status": "read",
+      "rating": 5,
+      "review": "Bilim kurgunun zirvesi",
+      "dateAdded": "2024-01-05T00:00:00.000Z",
+      "dateStarted": "2024-01-10T00:00:00.000Z",
+      "dateFinished": "2024-02-01T00:00:00.000Z",
+      "pages": 896
+    },
+    {
+      "id": "ub-mehmet-2",
+      "userId": "user-4",
+      "bookId": "book-mehmet-2",
+      "title": "Foundation",
+      "authors": [
+        "Isaac Asimov"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1592496431122-2349e0fbc666?w=300",
+      "status": "want-to-read",
+      "dateAdded": "2024-02-15T00:00:00.000Z",
+      "pages": 244
+    },
+    {
+      "id": "ub-mehmet-3",
+      "userId": "user-4",
+      "bookId": "book-mehmet-3",
+      "title": "Neuromancer",
+      "authors": [
+        "William Gibson"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=300",
+      "status": "currently-reading",
+      "dateAdded": "2024-02-28T00:00:00.000Z",
+      "dateStarted": "2024-03-05T00:00:00.000Z",
+      "pages": 271,
+      "readingProgress": 25
+    },
+    {
+      "id": "ub-ayse-1",
+      "userId": "user-5",
+      "bookId": "book-ayse-1",
+      "title": "Atomik Alışkanlıklar",
+      "authors": [
+        "James Clear"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=300",
+      "status": "read",
+      "rating": 5,
+      "review": "Hayat değiştiren kitap",
+      "dateAdded": "2024-01-08T00:00:00.000Z",
+      "dateStarted": "2024-01-12T00:00:00.000Z",
+      "dateFinished": "2024-01-28T00:00:00.000Z",
+      "pages": 320
+    },
+    {
+      "id": "ub-ayse-2",
+      "userId": "user-5",
+      "bookId": "book-ayse-2",
+      "title": "Sapiens",
+      "authors": [
+        "Yuval Noah Harari"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=300",
+      "status": "read",
+      "rating": 4,
+      "dateAdded": "2024-01-20T00:00:00.000Z",
+      "dateStarted": "2024-02-01T00:00:00.000Z",
+      "dateFinished": "2024-02-20T00:00:00.000Z",
+      "pages": 512
+    },
+    {
+      "id": "ub-ayse-3",
+      "userId": "user-5",
+      "bookId": "book-ayse-3",
+      "title": "Cesaret Etmek",
+      "authors": [
+        "Brené Brown"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=300",
+      "status": "want-to-read",
+      "dateAdded": "2024-02-25T00:00:00.000Z",
+      "pages": 287
+    },
+    {
+      "id": "ub-can-1",
+      "userId": "user-6",
+      "bookId": "book-can-1",
+      "title": "Görme Biçimleri",
+      "authors": [
+        "John Berger"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300",
+      "status": "read",
+      "rating": 5,
+      "review": "Sanat hakkında düşündürücü",
+      "dateAdded": "2024-01-12T00:00:00.000Z",
+      "dateStarted": "2024-01-15T00:00:00.000Z",
+      "dateFinished": "2024-01-25T00:00:00.000Z",
+      "pages": 176
+    },
+    {
+      "id": "ub-can-2",
+      "userId": "user-6",
+      "bookId": "book-can-2",
+      "title": "İstanbul: Hatıralar ve Şehir",
+      "authors": [
+        "Orhan Pamuk"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1520637836862-4d197d17c50a?w=300",
+      "status": "currently-reading",
+      "dateAdded": "2024-02-10T00:00:00.000Z",
+      "dateStarted": "2024-02-15T00:00:00.000Z",
+      "pages": 384,
+      "readingProgress": 55
+    },
+    {
+      "id": "ub-can-3",
+      "userId": "user-6",
+      "bookId": "book-can-3",
+      "title": "Fotoğraf Üzerine",
+      "authors": [
+        "Susan Sontag"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=300",
+      "status": "want-to-read",
+      "dateAdded": "2024-02-28T00:00:00.000Z",
+      "pages": 207
+    },
+    {
+      "id": "ub-1761932789247-x777o7maq",
+      "userId": "115928871880532961861",
+      "bookId": "QKhMEQAAQBAJ",
+      "title": "Tekstil Kalite Kontrol Test ve Analizleri (Kumaş)",
+      "authors": [
+        "Kenan Yıldırım",
+        "Kadriye Kutlay",
+        "Ayşe Senem Kaya"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=QKhMEQAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+      "status": "currently-reading",
+      "dateAdded": "2025-10-31T17:46:29.247Z",
+      "updatedAt": "2025-10-31T18:29:40.165Z",
+      "isFavorite": false,
+      "dateStarted": "2025-10-31T18:29:40.165Z"
+    },
+    {
+      "id": "ub-1761935352381-4e2141pmu",
+      "userId": "115928871880532961861",
+      "bookId": "rDgGEQAAQBAJ",
+      "title": "Yurt Dışında Türkçe Ana Dili Öğretimi Politikalar ve Uygulamalar",
+      "authors": [
+        "Editör: Büşra Süverdem"
+      ],
+      "imageUrl": "http://books.google.com/books/content?id=rDgGEQAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+      "status": "currently-reading",
+      "dateAdded": "2025-10-31T18:29:12.381Z",
+      "updatedAt": "2025-10-31T18:29:22.884Z",
+      "isFavorite": false,
+      "dateStarted": "2025-10-31T18:29:22.884Z"
+    }
+  ],
+  "followRelationships": [
+    {
+      "id": "fr-1",
+      "followerId": "115928871880532961861",
+      "followingId": "user-2",
+      "createdAt": "2024-02-01T00:00:00.000Z",
+      "isActive": true
+    },
+    {
+      "id": "fr-2",
+      "followerId": "user-2",
+      "followingId": "user-3",
+      "createdAt": "2024-02-05T00:00:00.000Z",
+      "isActive": true
+    },
+    {
+      "id": "fr-3",
+      "followerId": "user-3",
+      "followingId": "user-4",
+      "createdAt": "2024-02-10T00:00:00.000Z",
+      "isActive": true
+    },
+    {
+      "id": "fr-4",
+      "followerId": "user-4",
+      "followingId": "115928871880532961861",
+      "createdAt": "2024-02-12T00:00:00.000Z",
+      "isActive": true
+    }
+  ],
+  "followRequests": [],
+  "userStats": [
+    {
+      "userId": "115928871880532961861",
+      "followersCount": 1,
+      "followingCount": 1,
+      "mutualFollowsCount": 0,
+      "totalBooksRead": 2,
+      "averageRating": 4.5
+    },
+    {
+      "userId": "user-2",
+      "followersCount": 1,
+      "followingCount": 1,
+      "mutualFollowsCount": 0,
+      "totalBooksRead": 1,
+      "averageRating": 5
+    },
+    {
+      "userId": "user-3",
+      "followersCount": 1,
+      "followingCount": 1,
+      "mutualFollowsCount": 0,
+      "totalBooksRead": 2,
+      "averageRating": 4.5
+    },
+    {
+      "userId": "user-4",
+      "followersCount": 1,
+      "followingCount": 1,
+      "mutualFollowsCount": 0,
+      "totalBooksRead": 1,
+      "averageRating": 5
+    }
+  ],
+  "posts": [
+    {
+      "id": "post-1",
+      "userId": "115928871880532961861",
+      "type": "text-image",
+      "category": "book",
+      "content": "Bugün \"Da Vinci Şifresi\" kitabını bitirdim. Dan Brown'un gizemli hikaye anlatımı gerçekten etkileyici. Özellikle sanat tarihi ve din konularındaki detaylar çok ilgi çekiciydi.",
+      "images": [
+        {
+          "id": "img-1",
+          "url": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400",
+          "alt": "Da Vinci Şifresi kitabı",
+          "caption": "Dan Brown - Da Vinci Şifresi"
+        }
+      ],
+      "tags": [
+        "dan_brown",
+        "gizem",
+        "sanat_tarihi",
+        "din"
+      ],
+      "likesCount": 15,
+      "commentsCount": 3,
+      "sharesCount": 2,
+      "isLiked": false,
+      "isBookmarked": true,
+      "createdAt": "2025-10-30T14:30:00.000Z",
+      "updatedAt": "2025-10-30T14:30:00.000Z",
+      "visibility": "public"
+    },
+    {
+      "id": "post-2",
+      "userId": "user-2",
+      "type": "text",
+      "category": "philosophy",
+      "content": "Dostoyevski'nin \"Suç ve Ceza\" eserindeki psikolojik derinlik hala beni etkisi altında bırakıyor. İnsan ruhunun karmaşıklığını bu denli ustaca işlemek...",
+      "tags": [
+        "dostoyevski",
+        "klasik",
+        "psikoloji",
+        "rus_edebiyatı"
+      ],
+      "likesCount": 28,
+      "commentsCount": 7,
+      "sharesCount": 4,
+      "isLiked": true,
+      "isBookmarked": false,
+      "createdAt": "2025-10-30T10:15:00.000Z",
+      "updatedAt": "2025-10-30T10:15:00.000Z",
+      "visibility": "public"
+    },
+    {
+      "id": "post-3",
+      "userId": "user-3",
+      "type": "text-image",
+      "category": "book",
+      "content": "Elif Şafak'ın \"Aşk\" romanını okurken Mevlana'nın felsefesi hakkında çok şey öğrendim. Sufi düşüncesinin modern yaşama nasıl uygulanabileceği konusunda farklı bir bakış açısı kazandım.",
+      "images": [
+        {
+          "id": "img-2",
+          "url": "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=400",
+          "alt": "Aşk kitabı",
+          "caption": "Elif Şafak - Aşk"
+        }
+      ],
+      "tags": [
+        "elif_şafak",
+        "sufi",
+        "mevlana",
+        "modern_edebiyat"
+      ],
+      "likesCount": 22,
+      "commentsCount": 5,
+      "sharesCount": 3,
+      "isLiked": false,
+      "isBookmarked": true,
+      "createdAt": "2025-10-29T16:45:00.000Z",
+      "updatedAt": "2025-10-29T16:45:00.000Z",
+      "visibility": "public"
+    }
+  ],
+  "postComments": [
+    {
+      "id": "comment-1",
+      "postId": "post-1",
+      "userId": "user-2",
+      "content": "Ben de bu kitabı okumuştum, gerçekten çok etkileyici! Sanat tarihi kısımları çok bilgilendirici.",
+      "createdAt": "2025-10-30T15:00:00.000Z",
+      "likesCount": 3,
+      "isLiked": false
+    },
+    {
+      "id": "comment-2",
+      "postId": "post-1",
+      "userId": "user-3",
+      "content": "Dan Brown'un diğer kitaplarını da öneririm, hepsi birbirinden güzel!",
+      "createdAt": "2025-10-30T15:30:00.000Z",
+      "likesCount": 2,
+      "isLiked": true
+    },
+    {
+      "id": "comment-3",
+      "postId": "post-2",
+      "userId": "115928871880532961861",
+      "content": "Dostoyevski'nin karakter analizi gerçekten eşsiz. Hangi çevirmenin çevirisini okudunuz?",
+      "createdAt": "2025-10-30T11:00:00.000Z",
+      "likesCount": 1,
+      "isLiked": false
+    }
+  ],
+  "postLikes": [
+    {
+      "id": "like-1",
+      "postId": "post-2",
+      "userId": "115928871880532961861",
+      "createdAt": "2025-10-30T10:20:00.000Z"
+    },
+    {
+      "id": "like-2",
+      "postId": "post-1",
+      "userId": "user-3",
+      "createdAt": "2025-10-30T14:45:00.000Z"
+    }
+  ],
+  "meetups": [
+    {
+      "id": "meetup-1",
+      "title": "Klasik Edebiyat Buluşması",
+      "description": "Klasik edebiyat eserlerini tartıştığımız aylık buluşmamız",
+      "theme": "Klasik Edebiyat",
+      "coverImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
+      "location": "İstanbul",
+      "coordinates": {
+        "latitude": 41.0082,
+        "longitude": 28.9784
+      },
+      "createdBy": "user-2",
+      "members": [
+        "user-2",
+        "115928871880532961861",
+        "user-3"
+      ],
+      "memberCount": 3,
+      "maxMembers": 15,
+      "category": "Edebiyat",
+      "privacy": "public",
+      "status": "active",
+      "createdAt": "2024-01-15T00:00:00.000Z",
+      "updatedAt": "2024-02-01T00:00:00.000Z",
+      "isActive": true,
+      "tags": [
+        "klasik",
+        "edebiyat",
+        "roman"
+      ],
+      "language": "tr",
+      "meetingFrequency": "monthly"
+    },
+    {
+      "id": "meetup-2",
+      "title": "Bilim Kurgu Tutkunları",
+      "description": "En yeni bilim kurgu romanlarını keşfettiğimiz grup",
+      "theme": "Bilim Kurgu",
+      "coverImage": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=500",
+      "location": "İzmir",
+      "coordinates": {
+        "latitude": 38.4237,
+        "longitude": 27.1428
+      },
+      "createdBy": "user-4",
+      "members": [
+        "user-4",
+        "115928871880532961861"
+      ],
+      "memberCount": 2,
+      "maxMembers": 20,
+      "category": "Bilim Kurgu",
+      "privacy": "public",
+      "status": "active",
+      "createdAt": "2024-01-20T00:00:00.000Z",
+      "updatedAt": "2024-02-15T00:00:00.000Z",
+      "isActive": true,
+      "tags": [
+        "bilim-kurgu",
+        "fantastik",
+        "teknoloji"
+      ],
+      "language": "tr",
+      "meetingFrequency": "weekly"
+    },
+    {
+      "id": "meetup-3",
+      "title": "Kişisel Gelişim Kitapları",
+      "description": "Hayatımızı değiştirecek kitapları birlikte okuyalım",
+      "theme": "Kişisel Gelişim",
+      "coverImage": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=500",
+      "location": "Bursa",
+      "coordinates": {
+        "latitude": 40.1826,
+        "longitude": 29.0665
+      },
+      "createdBy": "user-5",
+      "members": [
+        "user-5",
+        "115928871880532961861",
+        "user-3"
+      ],
+      "memberCount": 3,
+      "maxMembers": 12,
+      "category": "Kişisel Gelişim",
+      "privacy": "public",
+      "status": "active",
+      "createdAt": "2024-02-05T00:00:00.000Z",
+      "updatedAt": "2024-02-20T00:00:00.000Z",
+      "isActive": true,
+      "tags": [
+        "kişisel-gelişim",
+        "motivasyon",
+        "başarı"
+      ],
+      "language": "tr",
+      "meetingFrequency": "biweekly"
+    },
+    {
+      "id": "meetup-1761935320352-iz4eki3dg",
+      "title": "Gazetteer Okuma Grubu",
+      "description": "dsfdsfsdf",
+      "theme": "Psikoloji Kitapları",
+      "maxMembers": 4,
+      "isPrivate": false,
+      "tags": [
+        "fsdfd"
+      ],
+      "category": "book-specific",
+      "initialMessage": "dsfdsfdsf",
+      "bookId": "ZfRLrzLO5PQC",
+      "coverImage": "http://books.google.com/books/content?id=ZfRLrzLO5PQC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+      "createdAt": "2025-10-31T18:28:40.352Z",
+      "updatedAt": "2025-10-31T18:28:40.369Z",
+      "memberCount": 1,
+      "members": [
+        null
+      ],
+      "status": "active",
+      "isActive": true
+    }
+  ],
+  "meetupMembers": [
+    {
+      "id": "mm-1",
+      "meetupId": "meetup-1",
+      "userId": "user-2",
+      "role": "owner",
+      "status": "active",
+      "joinedAt": "2024-01-15T00:00:00.000Z"
+    },
+    {
+      "id": "mm-2",
+      "meetupId": "meetup-1",
+      "userId": "115928871880532961861",
+      "role": "member",
+      "status": "active",
+      "joinedAt": "2024-01-20T00:00:00.000Z"
+    },
+    {
+      "id": "mm-3",
+      "meetupId": "meetup-1",
+      "userId": "user-3",
+      "role": "member",
+      "status": "active",
+      "joinedAt": "2024-01-25T00:00:00.000Z"
+    },
+    {
+      "id": "mm-4",
+      "meetupId": "meetup-2",
+      "userId": "user-4",
+      "role": "owner",
+      "status": "active",
+      "joinedAt": "2024-01-20T00:00:00.000Z"
+    },
+    {
+      "id": "mm-5",
+      "meetupId": "meetup-2",
+      "userId": "115928871880532961861",
+      "role": "member",
+      "status": "active",
+      "joinedAt": "2024-02-10T00:00:00.000Z"
+    },
+    {
+      "id": "mm-6",
+      "meetupId": "meetup-3",
+      "userId": "user-5",
+      "role": "owner",
+      "status": "active",
+      "joinedAt": "2024-02-05T00:00:00.000Z"
+    },
+    {
+      "id": "mm-7",
+      "meetupId": "meetup-3",
+      "userId": "115928871880532961861",
+      "role": "member",
+      "status": "active",
+      "joinedAt": "2024-02-15T00:00:00.000Z"
+    },
+    {
+      "id": "mm-8",
+      "meetupId": "meetup-3",
+      "userId": "user-3",
+      "role": "member",
+      "status": "active",
+      "joinedAt": "2024-02-18T00:00:00.000Z"
+    },
+    {
+      "id": "mm-1761935320364-zdw0v8264",
+      "meetupId": "meetup-1761935320352-iz4eki3dg",
+      "role": "owner",
+      "status": "active",
+      "joinedAt": "2025-10-31T18:28:40.364Z"
+    }
+  ],
+  "meetupMessages": [
+    {
+      "id": "msg-1",
+      "meetupId": "meetup-1",
+      "userId": "user-2",
+      "content": "Bu hafta Suç ve Ceza'yı bitirdim, muhteşem bir kitaptı!",
+      "type": "text",
+      "createdAt": "2024-02-01T10:00:00.000Z"
+    },
+    {
+      "id": "msg-2",
+      "meetupId": "meetup-1",
+      "userId": "115928871880532961861",
+      "content": "Benim de okuma listemde var, hangi çevirmenin çevirisini okudunuz?",
+      "type": "text",
+      "createdAt": "2024-02-01T10:30:00.000Z"
+    },
+    {
+      "id": "msg-3",
+      "meetupId": "meetup-2",
+      "userId": "user-4",
+      "content": "Dune serisinin yeni kitabı çıktı, okumaya başladım bile!",
+      "type": "book_recommendation",
+      "metadata": {
+        "bookId": "book-dune-new"
+      },
+      "createdAt": "2024-02-15T15:00:00.000Z"
+    }
+  ],
+  "meetingSchedules": [
+    {
+      "id": "meeting-1",
+      "meetupId": "meetup-1",
+      "title": "Şubat Ayı Klasik Edebiyat Buluşması",
+      "description": "Bu ay Dostoyevski eserlerini konuşacağız",
+      "date": "2024-03-01",
+      "time": "19:00",
+      "location": "Beyoğlu Kültür Merkezi",
+      "locationType": "physical",
+      "isRecurring": true,
+      "recurringPattern": "monthly",
+      "createdBy": "user-2",
+      "attendees": [
+        "user-2",
+        "115928871880532961861",
+        "user-3"
+      ]
+    },
+    {
+      "id": "meeting-2",
+      "meetupId": "meetup-2",
+      "title": "Haftalık Bilim Kurgu Sohbeti",
+      "description": "Zoom üzerinden bilim kurgu tartışması",
+      "date": "2024-02-25",
+      "time": "20:00",
+      "location": "https://zoom.us/j/123456789",
+      "locationType": "online",
+      "isRecurring": true,
+      "recurringPattern": "weekly",
+      "createdBy": "user-4",
+      "attendees": [
+        "user-4",
+        "115928871880532961861"
+      ]
+    }
+  ]
+}

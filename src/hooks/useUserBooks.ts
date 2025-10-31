@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Book, UserBook, BookSearchFilters, BookSearchResult } from '../types/book';
 import { GoogleBooksService } from '../services/googleBooksService';
+import { BookApiService } from '../services/bookApiService';
 
 export interface UseUserBooksReturn {
   userBooks: UserBook[];
@@ -40,6 +41,26 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
+  // API'den kullanıcının kitaplarını yükle
+  const loadUserBooks = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const books = await BookApiService.getUserBooks(userId);
+      setUserBooks(books);
+    } catch (err) {
+      console.error('Failed to load user books:', err);
+      setError(err instanceof Error ? err.message : 'Kitaplar yüklenirken hata oluştu');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId]);
+
+  // Component mount olduğunda kitapları yükle
+  useEffect(() => {
+    loadUserBooks();
+  }, [loadUserBooks]);
+
   const addBook = useCallback(async (book: Book, status: UserBook['status'] = 'want-to-read'): Promise<UserBook> => {
     console.log('📚 useUserBooks addBook çağrıldı:', { bookTitle: book.title, bookId: book.id, status });
     console.log('👤 Kullanıcı ID:', userId);
@@ -58,8 +79,7 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
         throw new Error('Bu kitap zaten kütüphanenizde mevcut.');
       }
 
-      const newUserBook: UserBook = {
-        id: `ub-${userId}-${Date.now()}`,
+      const newUserBookData: Omit<UserBook, 'id'> = {
         userId,
         bookId: book.id,
         title: book.title,
@@ -71,17 +91,21 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
         isFavorite: false,
       };
 
-      console.log('📝 Yeni UserBook oluşturuldu:', newUserBook);
+      console.log('📝 Yeni UserBook oluşturuluyor:', newUserBookData);
       
+      // API'ye kaydet
+      const savedBook = await BookApiService.addUserBook(newUserBookData);
+      
+      // Local state'i güncelle
       setUserBooks(prev => {
         console.log('🔄 UserBooks state güncelleniyor. Önceki:', prev.length);
-        const newState = [...prev, newUserBook];
+        const newState = [...prev, savedBook];
         console.log('🔄 UserBooks state güncellendi. Sonraki:', newState.length);
         return newState;
       });
       
       console.log('✅ addBook tamamlandı');
-      return newUserBook;
+      return savedBook;
     } catch (err) {
       console.error('❌ addBook hatası:', err);
       const errorMessage = err instanceof Error ? err.message : 'Kitap eklenirken bir hata oluştu.';
@@ -97,26 +121,32 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
       setIsLoading(true);
       setError(null);
 
-      setUserBooks(prev => prev.map(ub => {
-        if (ub.id === userBookId) {
-          const updates: Partial<UserBook> = {
-            status,
-            updatedAt: new Date(),
-          };
+      const book = userBooks.find(ub => ub.id === userBookId);
+      if (!book) {
+        throw new Error('Kitap bulunamadı');
+      }
 
-          if (status === 'currently-reading' && ub.status !== 'currently-reading') {
-            updates.dateStarted = new Date();
-          }
+      const updates: Partial<UserBook> = {
+        status,
+        updatedAt: new Date(),
+      };
 
-          if (status === 'read' && ub.status !== 'read') {
-            updates.dateFinished = new Date();
-            updates.readingProgress = 100;
-          }
+      if (status === 'currently-reading' && book.status !== 'currently-reading') {
+        updates.dateStarted = new Date();
+      }
 
-          return { ...ub, ...updates };
-        }
-        return ub;
-      }));
+      if (status === 'read' && book.status !== 'read') {
+        updates.dateFinished = new Date();
+        updates.readingProgress = 100;
+      }
+
+      // API'yi güncelle
+      const updatedBook = await BookApiService.updateUserBook(userBookId, updates);
+      
+      // Local state'i güncelle
+      setUserBooks(prev => prev.map(ub => 
+        ub.id === userBookId ? updatedBook : ub
+      ));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap durumu güncellenirken bir hata oluştu.';
       setError(errorMessage);
@@ -124,24 +154,26 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [userBooks]);
 
   const updateBookRating = useCallback(async (userBookId: string, rating: number, review?: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      setUserBooks(prev => prev.map(ub => {
-        if (ub.id === userBookId) {
-          return {
-            ...ub,
-            rating,
-            review,
-            updatedAt: new Date(),
-          };
-        }
-        return ub;
-      }));
+      const updates = {
+        rating,
+        review,
+        updatedAt: new Date(),
+      };
+
+      // API'yi güncelle
+      const updatedBook = await BookApiService.updateUserBook(userBookId, updates);
+      
+      // Local state'i güncelle
+      setUserBooks(prev => prev.map(ub => 
+        ub.id === userBookId ? updatedBook : ub
+      ));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap değerlendirmesi güncellenirken bir hata oluştu.';
       setError(errorMessage);
@@ -156,6 +188,10 @@ export const useUserBooks = (userId: string = MOCK_USER_ID): UseUserBooksReturn 
       setIsLoading(true);
       setError(null);
 
+      // API'den sil
+      await BookApiService.deleteUserBook(userBookId);
+      
+      // Local state'den kaldır
       setUserBooks(prev => prev.filter(ub => ub.id !== userBookId));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Kitap kaldırılırken bir hata oluştu.';

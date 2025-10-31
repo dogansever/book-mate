@@ -3,6 +3,7 @@ import { SwapRequest, SwapMessage, SwapChat, SwapStats, CreateSwapRequestData, U
 import { UserBook } from '../types/book';
 import { useAuth } from '../hooks/useAuth';
 import { useUserBooks } from './UserBooksContext';
+import { BookApiService } from '../services/bookApiService';
 
 export interface BookSwapContextValue {
   // Swap Requests
@@ -71,55 +72,38 @@ export const BookSwapProvider: React.FC<BookSwapProviderProps> = ({ children }) 
         throw new Error('Bu kitap için zaten bekleyen bir takas isteğiniz var.');
       }
 
-      // Get book details - requestedBookId'yi direkt kullan çünkü bu başka kullanıcının kitabı
-      // getUserBookByBookId sadece kendi kitaplarımızda arar, burada mock data kullanacağız
+      // Get book details from API
       let requestedBook;
       
-      // Yeni mock data servisini kullan
-      const { getAllMockUserBooks } = await import('../services/mockDataService');
-      const allUserBooks = getAllMockUserBooks();
-      const allMockBooks = allUserBooks.map(book => ({
-        bookId: book.bookId,
-        title: book.title,
-        authors: book.authors,
-        imageUrl: book.imageUrl
-      }));
-      
-      console.log('🔍 BookSwapContext - İstenen kitap aranıyor:');
-      console.log('- data.requestedBookId:', data.requestedBookId);
-      console.log('- allMockBooks:', allMockBooks);
-      
-      // Hem bookId hem de id alanlarında ara (esneklik için)
-      let mockBook = allMockBooks.find(book => book.bookId === data.requestedBookId);
-      
-      if (!mockBook) {
-        // UserBook ID'si ile de dene
-        const allUserBooks = getAllMockUserBooks();
-        const userBook = allUserBooks.find(book => book.id === data.requestedBookId || book.bookId === data.requestedBookId);
-        if (userBook) {
-          mockBook = {
-            bookId: userBook.bookId,
-            title: userBook.title,
-            authors: userBook.authors,
-            imageUrl: userBook.imageUrl
-          };
+      try {
+        const allUserBooks = await BookApiService.getAllBooks();
+        
+        console.log('🔍 BookSwapContext - İstenen kitap aranıyor:');
+        console.log('- data.requestedBookId:', data.requestedBookId);
+        console.log('- API\'den gelen kitaplar:', allUserBooks.length);
+        
+        // Hem bookId hem de id alanlarında ara (esneklik için)
+        const foundBook = allUserBooks.find(book => 
+          book.bookId === data.requestedBookId || book.id === data.requestedBookId
+        );
+        
+        console.log('- foundBook bulundu mu?', foundBook);
+        
+        if (!foundBook) {
+          console.error('❌ Kitap bulunamadı! İstenen ID:', data.requestedBookId);
+          throw new Error('İstenen kitap bulunamadı.');
         }
-      }
-      
-      console.log('- mockBook bulundu mu?', mockBook);
-      
-      if (!mockBook) {
-        console.error('❌ Kitap bulunamadı! Mevcut bookId\'ler:', allMockBooks.map(b => b.bookId));
+
+        requestedBook = {
+          id: foundBook.bookId,
+          title: foundBook.title,
+          authors: foundBook.authors,
+          imageUrl: foundBook.imageUrl
+        };
+      } catch (apiError) {
+        console.error('API\'den kitap alınırken hata:', apiError);
         throw new Error('İstenen kitap bulunamadı.');
       }
-      
-        // eslint-disable-next-line prefer-const
-      requestedBook = {
-        id: mockBook.bookId,
-        title: mockBook.title,
-        authors: mockBook.authors,
-        imageUrl: mockBook.imageUrl
-      };
 
       let offeredBook;
       if (data.offeredBookId) {
