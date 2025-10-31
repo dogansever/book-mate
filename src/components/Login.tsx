@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useGoogleLogin } from '@react-oauth/google';
+import { instagramOAuthService } from '../services/instagramOAuthService';
 import "./Login.css";
 
 interface LoginProps {
@@ -31,7 +32,39 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
       // Google OAuth will be handled by googleLogin hook
       return;
     }
+    
+    if (provider === "instagram") {
+      await handleInstagramLogin();
+      return;
+    }
+    
     await socialLogin({ provider });
+  };
+
+  const handleInstagramLogin = async () => {
+    try {
+      console.log('🔄 Instagram OAuth başlatılıyor...');
+      
+      const { user } = await instagramOAuthService.authenticateWithPopup();
+      
+      console.log('✅ Instagram OAuth başarılı:', user);
+      
+      // AuthContext'e Instagram user bilgilerini gönder
+      await socialLogin({ 
+        provider: 'instagram',
+        userData: {
+          id: user.id,
+          email: `${user.username}@instagram.com`, // Instagram email vermiyor, username kullan
+          name: user.username,
+          picture: undefined // Instagram Basic Display API'da profile picture yok
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ Instagram login error:', error);
+      // Kullanıcıya hata göster
+      alert(error instanceof Error ? error.message : 'Instagram ile giriş yapılırken hata oluştu');
+    }
   };
 
   const googleLogin = useGoogleLogin({

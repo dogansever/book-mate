@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, ReactNode } from "react";
+import React, { createContext, useReducer, ReactNode, useEffect } from "react";
 import {
   User,
   AuthState,
@@ -35,15 +35,21 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case "LOGIN_START":
       return { ...state, isLoading: true, error: null };
     case "LOGIN_SUCCESS":
+      saveUserToStorage(action.payload); // localStorage'a kaydet
       return { ...state, isLoading: false, user: action.payload, error: null };
     case "LOGIN_ERROR":
       return { ...state, isLoading: false, error: action.payload };
     case "UPDATE_PROFILE_SUCCESS":
+      const updatedUser = state.user ? { ...state.user, profile: action.payload } : null;
+      if (updatedUser) {
+        saveUserToStorage(updatedUser); // localStorage'ı güncelle
+      }
       return {
         ...state,
-        user: state.user ? { ...state.user, profile: action.payload } : null,
+        user: updatedUser,
       };
     case "LOGOUT":
+      removeUserFromStorage(); // localStorage'ı temizle
       return { ...state, user: null, isLoading: false, error: null };
     case "CLEAR_ERROR":
       return { ...state, error: null };
@@ -52,8 +58,45 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   }
 };
 
+// localStorage utility functions
+const STORAGE_KEY = 'book-mate-user';
+
+const saveUserToStorage = (user: User) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  } catch (error) {
+    console.error('Error saving user to localStorage:', error);
+  }
+};
+
+const getUserFromStorage = (): User | null => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const user = JSON.parse(stored);
+      // Date objelerini geri çevir
+      if (user.createdAt) user.createdAt = new Date(user.createdAt);
+      if (user.updatedAt) user.updatedAt = new Date(user.updatedAt);
+      if (user.lastLoginAt) user.lastLoginAt = new Date(user.lastLoginAt);
+      return user;
+    }
+  } catch (error) {
+    console.error('Error loading user from localStorage:', error);
+    localStorage.removeItem(STORAGE_KEY);
+  }
+  return null;
+};
+
+const removeUserFromStorage = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('Error removing user from localStorage:', error);
+  }
+};
+
 const initialState: AuthState = {
-  user: null,
+  user: getUserFromStorage(), // Sayfa yüklendiğinde localStorage'dan kullanıcıyı yükle
   isLoading: false,
   error: null,
 };
@@ -62,6 +105,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+
+  // Sayfa yüklendiğinde localStorage'dan user bilgilerini kontrol et
+  useEffect(() => {
+    const storedUser = getUserFromStorage();
+    if (storedUser && !state.user) {
+      // localStorage'da user var ama state'te yok, tekrar yükle
+      dispatch({ type: "LOGIN_SUCCESS", payload: storedUser });
+      console.log('👤 User restored from localStorage:', storedUser.displayName);
+    }
+  }, [state.user]);
 
   const login = async (credentials: LoginCredentials) => {
     try {
