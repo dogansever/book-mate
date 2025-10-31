@@ -435,6 +435,115 @@ export class MeetupService {
 
     return invitation;
   }
+
+  /**
+   * Meetup sil
+   */
+  static async deleteMeetup(meetupId: string): Promise<void> {
+    try {
+      // API implementation here
+      console.log(`Deleting meetup ${meetupId}`);
+    } catch (error) {
+      console.error('Error deleting meetup:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mesaj oluştur
+   */
+  static async createMessage(messageData: CreateMessageData): Promise<MeetupMessage> {
+    try {
+      // API implementation here
+      const message: MeetupMessage = {
+        id: Date.now().toString(),
+        meetupId: messageData.meetupId,
+        userId: messageData.userId,
+        content: messageData.content,
+        createdAt: new Date(),
+        user: {
+          id: messageData.userId,
+          displayName: 'User',
+          email: 'user@example.com',
+          provider: 'email',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      };
+      return message;
+    } catch (error) {
+      console.error('Error creating message:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Kullanıcı meetup istatistikleri
+   */
+  static async getUserMeetupStats(_userId: string): Promise<MeetupStats> {
+    try {
+      // API implementation here
+      return {
+        totalMeetups: 0,
+        activeMeetups: 0,
+        upcomingMeetings: 0,
+        completedMeetings: 0
+      };
+    } catch (error) {
+      console.error('Error getting user meetup stats:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Davetiye gönder
+   */
+  static async sendInvitation(invitationData: CreateInvitationData): Promise<MeetupInvitation> {
+    try {
+      // API implementation here
+      const invitation: MeetupInvitation = {
+        id: Date.now().toString(),
+        meetupId: invitationData.meetupId,
+        inviterId: invitationData.inviterId,
+        inviteeId: invitationData.inviteeId,
+        message: invitationData.message,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        meetup: {
+          id: invitationData.meetupId,
+          title: 'Meetup Title',
+          description: 'Meetup Description',
+          theme: 'general',
+          category: 'general',
+          createdBy: invitationData.inviterId,
+          maxMembers: 10,
+          isPrivate: false,
+          members: [],
+          tags: [],
+          rules: [],
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      };
+      return invitation;
+    } catch (error) {
+      console.error('Error sending invitation:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gönderilen davetiyeleri getir
+   */
+  static async getSentInvitations(_userId: string): Promise<MeetupInvitation[]> {
+    try {
+      // API implementation here
+      return [];
+    } catch (error) {
+      console.error('Error getting sent invitations:', error);
+      throw error;
+    }
+  }
 }
 
 // Eski context uyumluluğu için

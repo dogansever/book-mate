@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useMeetupContext } from '../hooks/useMeetupContext';
-import { useAuth } from '../hooks/useAuth';
-import { Meetup, MeetupMessage } from '../types/meetup';
+import React, { useState } from 'react';
+import { Meetup, CreateMessageData, CreateMeetingData } from '../types/meetup';
 import InvitationModal from './InvitationModal';
 import { PlaceholderImages } from '../utils/placeholderImages';
 import './MeetupDetails.css';

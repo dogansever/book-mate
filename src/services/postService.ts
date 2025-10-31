@@ -410,6 +410,128 @@ export class PostService {
       return [];
     }
   }
+
+  // Post güncelle
+  static async updatePost(postId: string, updateData: Partial<Post>): Promise<Post> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...updateData,
+          updatedAt: new Date().toISOString()
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update post');
+      }
+
+      const updatedPost = await response.json();
+      return mapApiPostToPost(updatedPost);
+    } catch (error) {
+      console.error('Error updating post:', error);
+      throw error;
+    }
+  }
+
+  // Post sil
+  static async deletePost(postId: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete post');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      throw error;
+    }
+  }
+
+  // Bookmark toggle
+  static async toggleBookmark(postId: string, _userId: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookmarked: true // Simplified implementation
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle bookmark');
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      throw error;
+    }
+  }
+
+  // Yorum ekle
+  static async createComment(postId: string, commentData: CreateCommentData): Promise<PostComment> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...commentData,
+          postId,
+          createdAt: new Date().toISOString()
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create comment');
+      }
+
+      const comment = await response.json();
+      const user = await getUser(comment.userId);
+      
+      return {
+        id: comment.id,
+        postId: postId,
+        content: comment.content,
+        userId: comment.userId,
+        user: user || { id: comment.userId, username: 'unknown', fullName: 'Unknown User', profileImage: '' },
+        likesCount: 0,
+        isLiked: false,
+        createdAt: new Date(comment.createdAt)
+      };
+    } catch (error) {
+      console.error('Error creating comment:', error);
+      throw error;
+    }
+  }
+
+  // Post istatistikleri
+  static async getPostStats(): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/posts`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch post stats');
+      }
+      
+      const posts = await response.json();
+      return {
+        totalPosts: posts.length,
+        totalLikes: posts.reduce((sum: number, post: any) => sum + (post.likes || 0), 0),
+        totalComments: posts.reduce((sum: number, post: any) => sum + (post.comments?.length || 0), 0)
+      };
+    } catch (error) {
+      console.error('Error fetching post stats:', error);
+      throw error;
+    }
+  }
 }
 
 export default PostService;
